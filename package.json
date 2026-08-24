@@ -1,0 +1,21 @@
+{
+  "name": "aqua-challenge",
+  "version": "1.0.0",
+  "description": "Aqua+ Challenge: vier technische levels op tijd, met leaderboard en doorverwijzing naar de vacatures",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "reset": "node --env-file-if-exists=.env scripts/reset.js",
+    "stats": "node --env-file-if-exists=.env scripts/stats.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

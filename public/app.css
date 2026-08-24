@@ -1,0 +1,386 @@
+/* ============================================================
+   Aqua+ minigame, componenten.
+   Bouwt op de tokens in aqua-tokens.css. Vlakke kleurvlakken,
+   subtiele schaduw, geen glaseffect of decoratieve animatie.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-brand);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--sp-6) var(--sp-4) var(--sp-12);
+}
+
+:where(button, a, input, select, textarea):focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ---------------- Kaart + kopbalk ---------------- */
+.kaart {
+  width: 100%;
+  max-width: 620px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.kop {
+  background: var(--aqua-blue);
+  color: var(--white);
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.kop img { height: 30px; width: auto; display: block; }
+.kop .eyebrow {
+  margin-left: auto;
+  font-size: var(--fs-caption);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--aqua-sky);
+  text-align: right;
+}
+
+.body { padding: var(--sp-6); }
+
+h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  margin: 0 0 var(--sp-2);
+}
+h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  color: var(--aqua-blue);
+  margin: 0 0 var(--sp-3);
+}
+.sub { color: var(--ink-soft); font-size: var(--fs-small); margin: 0 0 var(--sp-5); }
+.sub strong { color: var(--ink); font-weight: var(--fw-bold); }
+
+/* ---------------- Voortgang + klok ---------------- */
+.spelbalk {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.stap {
+  font-size: var(--fs-caption);
+  letter-spacing: var(--ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.klok {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--fw-bold);
+  color: var(--aqua-blue);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-1) var(--sp-3);
+  font-size: var(--fs-small);
+}
+.klok.laag { color: var(--amber-ink); background: var(--amber-bg); border-color: var(--amber); }
+.klok.kritiek { color: var(--red); background: var(--red-bg); border-color: var(--red); }
+.klokbalk {
+  height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+.klokbalk > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--aqua-blue);
+  transform-origin: left center;
+  transition: transform .2s linear, background .2s linear;
+}
+.klokbalk.laag > i { background: var(--amber); }
+.klokbalk.kritiek > i { background: var(--red); }
+
+/* ---------------- Schema ---------------- */
+.schema {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+.gat { fill: var(--white); stroke: var(--aqua-blue); stroke-width: 2.5; stroke-dasharray: 6 4; }
+
+/* ---------------- Opties ---------------- */
+.opties {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+@media (max-width: 460px) { .opties { grid-template-columns: repeat(2, 1fr); } }
+
+.optie {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  padding: var(--sp-3) var(--sp-2) var(--sp-2);
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  color: var(--ink-soft);
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.optie:hover:not(:disabled) { border-color: var(--aqua-blue); background: var(--card-alt); }
+.optie.gekozen {
+  border-color: var(--aqua-blue);
+  background: var(--card-alt);
+  color: var(--aqua-blue);
+  font-weight: var(--fw-bold);
+  box-shadow: inset 0 0 0 1px var(--aqua-blue);
+}
+.optie:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+.optie.juist { border-color: var(--green); background: var(--green-bg); color: var(--green); opacity: 1; }
+.optie.onjuist { border-color: var(--red); background: var(--red-bg); color: var(--red); opacity: 1; }
+.optie svg { display: block; margin: 0 auto var(--sp-2); }
+
+/* ---------------- Knoppen ---------------- */
+.knop {
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3) var(--sp-5);
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background .15s ease, color .15s ease;
+}
+.knop-primair { background: var(--aqua-blue); color: var(--white); }
+.knop-primair:hover:not(:disabled) { background: var(--aqua-blue-700); }
+.knop-secundair { background: var(--white); color: var(--aqua-blue); border-color: var(--aqua-blue); }
+.knop-secundair:hover:not(:disabled) { background: var(--card-alt); }
+.knop:disabled { opacity: var(--opacity-disabled); cursor: not-allowed; }
+
+/* ---------------- Callout ---------------- */
+.callout {
+  border-left: var(--accent-bar) solid var(--aqua-blue);
+  background: var(--card-alt);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--fs-small);
+  margin-bottom: var(--sp-4);
+}
+.callout.goed { border-left-color: var(--green); background: var(--green-bg); color: var(--green); }
+.callout.fout { border-left-color: var(--red); background: var(--red-bg); color: var(--red); }
+.callout.let-op { border-left-color: var(--amber); background: var(--amber-bg); color: var(--amber-ink); }
+.callout .teken { font-weight: var(--fw-bold); margin-right: var(--sp-2); }
+
+/* ---------------- Score ---------------- */
+.scorevlak {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+.scorevlak .cijfer {
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  color: var(--aqua-blue);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.scorevlak .label { font-size: var(--fs-small); color: var(--ink-soft); }
+.pill {
+  display: inline-block;
+  background: var(--aqua-pill);
+  color: var(--white);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--sp-3);
+}
+
+/* ---------------- Formulier ---------------- */
+label { display: block; font-size: var(--fs-small); font-weight: var(--fw-bold); margin: var(--sp-4) 0 var(--sp-1); }
+input, select {
+  width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+}
+input:hover, select:hover { border-color: var(--aqua-cyan-text); }
+.akkoord {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  margin: var(--sp-5) 0 var(--sp-2);
+  font-size: var(--fs-caption);
+  color: var(--ink-soft);
+  font-weight: var(--fw-regular);
+}
+.akkoord input { width: auto; margin-top: 3px; flex: none; }
+.akkoord a { color: var(--aqua-cyan-text); }
+
+/* ---------------- Leaderboard ---------------- */
+table.bord { width: 100%; border-collapse: collapse; font-size: var(--fs-small); margin-bottom: var(--sp-4); }
+table.bord th {
+  background: var(--aqua-blue);
+  color: var(--white);
+  text-align: left;
+  font-weight: var(--fw-bold);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-caption);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+table.bord td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); }
+table.bord tbody tr:nth-child(even) { background: var(--card); }
+table.bord tbody tr.ikzelf { background: var(--card-alt); }
+table.bord tbody tr.ikzelf td.pos { border-left: var(--accent-bar) solid var(--aqua-blue); }
+table.bord tbody tr.ikzelf td { font-weight: var(--fw-bold); color: var(--aqua-blue); }
+table.bord td.pos { width: 36px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; font-weight: var(--fw-bold); }
+.leeg { color: var(--ink-soft); font-size: var(--fs-small); padding: var(--sp-4) 0; }
+
+/* ---------------- Voettekst ---------------- */
+.voet {
+  background: var(--aqua-blue-dark);
+  color: var(--white);
+  padding: var(--sp-4) var(--sp-6);
+  font-size: var(--fs-caption);
+  display: flex;
+  gap: var(--sp-4);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.voet .slogan { margin-left: auto; font-style: italic; color: var(--aqua-sky); }
+
+.verborgen { display: none !important; }
+.mini { font-size: var(--fs-caption); color: var(--ink-soft); margin-top: var(--sp-4); }
+
+/* Sunburst als rustig merkaccent achter de kopbalk */
+.merkaccent { position: relative; overflow: hidden; }
+.merkaccent .sun {
+  position: absolute; right: -84px; top: -92px; width: 210px; height: 210px;
+  opacity: .10; pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ============================================================
+   Aqua+ Challenge, aanvullingen
+   ============================================================ */
+
+.lijst { margin: var(--sp-2) 0 0; padding-left: var(--sp-5); }
+.lijst li { margin-bottom: var(--sp-1); }
+
+.vraag { font-weight: var(--fw-bold); margin: 0 0 var(--sp-4); }
+
+/* Voortgang: vier blokjes */
+.stappen { display: flex; gap: var(--sp-1); margin-bottom: var(--sp-5); }
+.stappen > i {
+  flex: 1; height: 4px; border-radius: var(--radius-pill); background: var(--border);
+}
+.stappen > i.gedaan { background: var(--green); }
+.stappen > i.gemist  { background: var(--amber); }
+.stappen > i.nu      { background: var(--aqua-blue); }
+
+/* Tekening */
+.tekening {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+.tekening svg { display: block; width: 100%; height: auto; }
+
+/* Klikbare onderdelen in de tekening */
+.hotspot { cursor: pointer; }
+.hotspot rect, .hotspot circle, .hotspot line, .hotspot polyline { transition: none; }
+.hotspot .raak { fill: transparent; stroke: transparent; }
+.hotspot:hover .vlak { fill: var(--card-alt); stroke: var(--aqua-blue); }
+.hotspot:hover .naam { fill: var(--aqua-blue); }
+.hotspot:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+.hotspot.juist .vlak   { fill: var(--green-bg); stroke: var(--green); }
+.hotspot.juist .naam   { fill: var(--green); }
+.hotspot.onjuist .vlak { fill: var(--red-bg); stroke: var(--red); }
+.hotspot.onjuist .naam { fill: var(--red); }
+.tekening.vast .hotspot { cursor: default; pointer-events: none; }
+
+/* Meerkeuze met letters */
+.opties.letters { grid-template-columns: 1fr; gap: var(--sp-2); }
+.opties.letters .optie {
+  display: flex; align-items: center; gap: var(--sp-3);
+  text-align: left; font-size: var(--fs-body); padding: var(--sp-3) var(--sp-4);
+}
+.opties.letters .optie .letter {
+  flex: none; width: 26px; height: 26px; border-radius: var(--radius-pill);
+  background: var(--card); color: var(--ink-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); font-weight: var(--fw-bold);
+}
+.opties.letters .optie.gekozen .letter { background: var(--aqua-blue); color: var(--white); }
+.opties.letters .optie.juist .letter   { background: var(--green); color: var(--white); }
+.opties.letters .optie.onjuist .letter { background: var(--red); color: var(--white); }
+
+/* Levels-overzicht in het resultaatscherm */
+table.bord td.tijd { text-align: right; font-variant-numeric: tabular-nums; }
+table.bord td.uitslag { width: 24px; font-weight: var(--fw-bold); }
+table.bord td.uitslag.ok  { color: var(--green); }
+table.bord td.uitslag.nok { color: var(--amber-ink); }
+
+/* Ja/nee-keuze in het formulier */
+.keuzeknoppen { display: flex; gap: var(--sp-3); }
+.keuzeknop {
+  flex: 1; font-family: inherit; font-size: var(--fs-body); font-weight: var(--fw-bold);
+  padding: var(--sp-3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--white); color: var(--ink-soft); cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.keuzeknop:hover { border-color: var(--aqua-blue); background: var(--card-alt); }
+.keuzeknop.aan {
+  border-color: var(--aqua-blue); background: var(--card-alt); color: var(--aqua-blue);
+  box-shadow: inset 0 0 0 1px var(--aqua-blue);
+}
+
+/* Aftellen naar de vacaturepagina */
+.aftellen { margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--border); }
+.aftellen .lijn { height: 3px; background: var(--border); border-radius: var(--radius-pill); overflow: hidden; }
+.aftellen .lijn > i {
+  display: block; height: 100%; width: 100%; background: var(--aqua-gradient);
+  transform-origin: left center; transition: transform 1s linear;
+}
+.aftelTekst { font-size: var(--fs-small); color: var(--ink-soft); margin: var(--sp-3) 0 var(--sp-4); }
+.aftelTekst strong { color: var(--aqua-blue); font-size: var(--fs-h1); font-variant-numeric: tabular-nums; }
+a.knop { display: block; text-align: center; text-decoration: none; }

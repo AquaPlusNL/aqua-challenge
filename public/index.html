@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Aqua+ Challenge · Werken bij Aqua+</title>
+<meta name="description" content="Vier technische uitdagingen. Los ze zo snel mogelijk op en kom op de ranglijst.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="aqua-tokens.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div class="kaart">
+  <div class="kop merkaccent">
+    <svg class="sun" viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+      <defs><mask id="plusCut">
+        <rect width="1000" height="1000" fill="#fff"></rect>
+        <path d="M325 465 H465 V325 H535 V465 H675 V535 H535 V675 H465 V535 H325 Z" fill="#000"></path>
+      </mask></defs>
+      <g fill="#FFFFFF" mask="url(#plusCut)">
+        <rect x="465" y="0" width="70" height="500"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(22.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(45,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(67.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(90,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(112.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(135,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(157.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(180,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(202.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(225,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(247.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(270,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(292.5,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(315,500,500)"></rect>
+        <rect x="465" y="0" width="70" height="500" transform="rotate(337.5,500,500)"></rect>
+      </g>
+    </svg>
+    <img src="assets/aqua-logo-wit.png" alt="Aqua+">
+    <span class="eyebrow">De Aqua+<br>Challenge</span>
+  </div>
+
+  <div class="body">
+
+    <!-- 1. laden -->
+    <div id="scherm-laden"><p class="sub">Even laden.</p></div>
+
+    <!-- 2. start -->
+    <div id="scherm-start" class="verborgen">
+      <h1>De Aqua+ Challenge</h1>
+      <p class="sub">Vier technische uitdagingen. Hoe sneller je ze oplost, hoe hoger je op de
+        ranglijst komt. Reken op een paar minuten.</p>
+      <div id="alIngezonden" class="callout let-op verborgen">
+        <span class="teken">Let op</span><span id="alIngezondenTekst"></span>
+      </div>
+      <button class="knop knop-primair" id="startKnop">Start</button>
+    </div>
+
+    <!-- 3. introductie -->
+    <div id="scherm-intro" class="verborgen">
+      <h1>Welkom</h1>
+      <p class="sub">Je gaat vier technische uitdagingen oplossen. Elke uitdaging test een ander
+        onderdeel van jouw elektrotechnisch inzicht.</p>
+      <div class="callout">
+        Maak je geen zorgen:
+        <ul class="lijst">
+          <li>Je hebt geen voorbereiding nodig</li>
+          <li>Je hoeft geen berekeningen te maken</li>
+          <li>Logisch nadenken is voldoende</li>
+        </ul>
+      </div>
+      <p class="sub">Je tijd loopt per level. Een fout antwoord mag je opnieuw proberen, maar dat
+        kost tijd. Succes.</p>
+      <button class="knop knop-primair" id="introKnop">Speel level 1</button>
+    </div>
+
+    <!-- 4. level -->
+    <div id="scherm-level" class="verborgen">
+      <div class="spelbalk">
+        <span class="stap" id="stap">Level 1 van 4</span>
+        <span class="klok" id="klok" role="timer"><span id="klokTekst">45s</span></span>
+      </div>
+      <div class="klokbalk" id="klokbalk"><i id="klokvulling"></i></div>
+      <div class="stappen" id="stappen" aria-hidden="true"></div>
+
+      <h1 id="levelTitel"></h1>
+      <p class="sub" id="levelSituatie"></p>
+      <p class="vraag" id="levelVraag"></p>
+      <div class="tekening" id="tekening"></div>
+      <div class="opties" id="opties"></div>
+
+      <div class="callout verborgen" id="feedback"></div>
+      <button class="knop knop-primair" id="checkKnop" disabled>Controleer</button>
+      <p class="mini" id="tussenstand"></p>
+    </div>
+
+    <!-- 5. resultaat -->
+    <div id="scherm-resultaat" class="verborgen">
+      <span class="pill" id="resultaatPill">Resultaat</span>
+      <h1 id="resultaatTitel">Jij hebt de uitdaging gehaald</h1>
+      <p class="sub">Niet iedereen haalt alle vier de levels. Wij zijn benieuwd wie jij bent.</p>
+      <div class="scorevlak">
+        <span class="cijfer" id="tijdCijfer">0:00</span>
+        <span class="label">totale tijd<br><span id="tijdDetail"></span></span>
+      </div>
+      <table class="bord" id="levelTabel"></table>
+      <button class="knop knop-primair" id="naarFormulierKnop">Verder</button>
+    </div>
+
+    <!-- 6. formulier -->
+    <div id="scherm-formulier" class="verborgen">
+      <h1>Wie ben jij?</h1>
+      <p class="sub">Vier velden, klaar. Een collega van Aqua+ neemt contact met je op.</p>
+      <form id="formulier" novalidate>
+        <label for="voornaam">Voornaam</label>
+        <input id="voornaam" autocomplete="given-name" placeholder="Je voornaam" required>
+
+        <label for="telefoon">Telefoonnummer</label>
+        <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
+
+        <label for="email">E-mailadres</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="jouw@email.nl" required>
+
+        <label>Heb je een mbo-diploma in de richting elektrotechniek?</label>
+        <div class="keuzeknoppen">
+          <button type="button" class="keuzeknop" data-mbo="ja">Ja</button>
+          <button type="button" class="keuzeknop" data-mbo="nee">Nee</button>
+        </div>
+
+        <label class="akkoord" for="akkoord">
+          <input type="checkbox" id="akkoord">
+          <span>Aqua+ mag mijn gegevens gebruiken om contact met me op te nemen over werken bij
+            Aqua+. Op de ranglijst komen alleen mijn voornaam en mijn tijd te staan.
+            Zie de <a href="/privacyverklaring" target="_blank" rel="noopener">privacyverklaring</a>.</span>
+        </label>
+
+        <div class="callout fout verborgen" id="formFout"></div>
+        <button class="knop knop-primair" id="verstuurKnop" type="submit" style="margin-top:var(--sp-4)">
+          Bekijk de vacatures
+        </button>
+      </form>
+    </div>
+
+    <!-- 7. bedanken, ranglijst en aftellen -->
+    <div id="scherm-bedank" class="verborgen">
+      <div class="callout goed"><span class="teken">&#10003;</span>Gegevens ontvangen</div>
+      <h1 id="bedankTitel">Leuk dat je hebt meegedaan</h1>
+      <p class="sub" id="bedankSub"></p>
+      <div id="bedankMelding"></div>
+
+      <h2>Ranglijst, snelste tijden</h2>
+      <div id="bordTabel"></div>
+
+      <div class="aftellen" id="aftellen">
+        <div class="lijn"><i></i></div>
+        <p class="aftelTekst">Je wordt doorgestuurd naar onze vacatures in
+          <strong id="aftelCijfer">5</strong></p>
+        <a class="knop knop-primair" id="nuKnop" href="#">Bekijk de vacatures</a>
+        <button class="knop knop-secundair" id="blijfKnop" style="margin-top:var(--sp-2)">
+          Blijf hier, ik kijk nog even
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="voet">
+    <span>Vragen over werken bij Aqua+? Bel of mail ons, we denken graag met je mee.</span>
+    <span class="slogan">Samen voor meer brandveiligheid</span>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
