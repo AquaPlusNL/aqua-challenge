@@ -184,11 +184,13 @@ privacy gaat.
    (`public/vacatures.html`); die kan weg zodra de echte URL erin staat.
 2. **Inhoud laten nakijken** door een monteur of engineer: vragen, antwoorden,
    de tekeningen en de kloktijden.
-3. **Lettertype.** Pill Gothic 600mg zit niet in deze repo. Kopieer uit het design
-   system `Pill_Gothic_600mg_Regular.ttf`, `..._Oblique.ttf` en `..._Semibd.ttf`
-   naar `public/fonts/`. Zonder die bestanden valt de pagina terug op Calibri en
-   Segoe UI. Het font is betaald en de licentie spreekt over intern
-   Aqua+-gebruik; laat controleren of publicatie als webfont daaronder valt.
+3. **Lettertype.** De pagina gebruikt standaard Calibri (systeemfont, geen
+   licentie nodig). Het merkfont Pill Gothic 600mg is bewust niet meegeleverd:
+   het is betaald en de licentie spreekt over intern Aqua+-gebruik. Wil je het
+   merkfont tóch gebruiken, laat dan eerst controleren of publicatie als webfont
+   onder de licentie valt; daarna zet je de `.ttf`'s in `public/fonts/`, herstel
+   je de `@font-face`-regels in `public/aqua-tokens.css` en zet je
+   `"Pill Gothic 600mg"` vooraan in `--font-brand`.
 4. **`TRUST_PROXY=1`** zetten als de app achter nginx, Traefik of Cloudflare staat.
    Anders krijgt iedereen het IP van de proxy en blokkeert de eerste inzending
    alle volgende.

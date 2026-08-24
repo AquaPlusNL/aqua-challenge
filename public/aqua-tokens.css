@@ -6,14 +6,13 @@
    uit het design system.
    ============================================================ */
 
-/* ---- Merkfont: Pill Gothic 600mg ----
-   De .ttf-bestanden zitten NIET in deze repo. Kopieer ze uit
-   /fonts van het Aqua+ design system naar public/fonts/.
-   Zonder die bestanden valt de pagina netjes terug op
-   Calibri / Segoe UI / Arial. Zie README, "Lettertype". */
-@font-face { font-family:"Pill Gothic 600mg"; font-weight:400; font-style:normal; font-display:swap; src:url("fonts/Pill_Gothic_600mg_Regular.ttf") format("truetype"); }
-@font-face { font-family:"Pill Gothic 600mg"; font-weight:400; font-style:italic;  font-display:swap; src:url("fonts/Pill_Gothic_600mg_Oblique.ttf") format("truetype"); }
-@font-face { font-family:"Pill Gothic 600mg"; font-weight:600; font-style:normal; font-display:swap; src:url("fonts/Pill_Gothic_600mg_Semibd.ttf") format("truetype"); }
+/* ---- Lettertype ----
+   Standaard Calibri (systeemfont, geen licentie nodig). Het merkfont
+   Pill Gothic 600mg is betaald en de licentie beperkt tot intern
+   Aqua+-gebruik; daarom niet meegeleverd. Wil je het merkfont wel
+   gebruiken en is de webfont-licentie geregeld: zet de .ttf's in
+   public/fonts/, herstel de @font-face-regels en zet "Pill Gothic 600mg"
+   vooraan in --font-brand. */
 
 :root {
   /* Merkkleuren */
@@ -48,7 +47,7 @@
   --aqua-gradient:    linear-gradient(135deg, #00A0E1 0%, #0064AF 100%);
 
   /* Typografie */
-  --font-brand: "Pill Gothic 600mg", Calibri, "Segoe UI", Arial, sans-serif;
+  --font-brand: Calibri, "Segoe UI", Arial, sans-serif;
   --fw-regular: 400;
   --fw-bold:    600;
   --fs-display: 2.25rem;
