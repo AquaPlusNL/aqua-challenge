@@ -47,6 +47,7 @@ body {
 .kop img { height: 30px; width: auto; display: block; }
 .kop .eyebrow {
   margin-left: auto;
+  margin-right: 72px; /* vrij van het sunburst-motief in de hoek */
   font-size: var(--fs-caption);
   letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
@@ -289,8 +290,10 @@ table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; fon
 /* Sunburst als rustig merkaccent achter de kopbalk */
 .merkaccent { position: relative; overflow: hidden; }
 .merkaccent .sun {
-  position: absolute; right: -84px; top: -92px; width: 210px; height: 210px;
-  opacity: .10; pointer-events: none;
+  /* Rechterbovenhoek zo dat van de plus alleen de linkerarm en de onderste
+     arm zichtbaar zijn (hoekpunt op de binnenhoek van het pluskruis). */
+  position: absolute; right: -98px; top: -98px; width: 210px; height: 210px;
+  opacity: .75; pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -305,6 +308,26 @@ table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; fon
 .lijst li { margin-bottom: var(--sp-1); }
 
 .vraag { font-weight: var(--fw-bold); margin: 0 0 var(--sp-4); }
+
+/* Startscherm: de vier uitdagingen met level-iconen */
+.uitdagingen {
+  list-style: none;
+  margin: 0 0 var(--sp-5);
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+.uitdagingen li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-small);
+}
+.uitdagingen svg { flex: none; color: var(--aqua-blue); }
 
 /* Voortgang: vier blokjes */
 .stappen { display: flex; gap: var(--sp-1); margin-bottom: var(--sp-5); }

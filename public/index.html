@@ -14,11 +14,19 @@
 <div class="kaart">
   <div class="kop merkaccent">
     <svg class="sun" viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
-      <defs><mask id="plusCut">
-        <rect width="1000" height="1000" fill="#fff"></rect>
-        <path d="M325 465 H465 V325 H535 V465 H675 V535 H535 V675 H465 V535 H325 Z" fill="#000"></path>
-      </mask></defs>
-      <g fill="#FFFFFF" mask="url(#plusCut)">
+      <defs>
+        <mask id="plusCut">
+          <rect width="1000" height="1000" fill="#fff"></rect>
+          <path d="M325 465 H465 V325 H535 V465 H675 V535 H535 V675 H465 V535 H325 Z" fill="#000"></path>
+        </mask>
+        <!-- Rood #E52A21 bevestigd door marketing (stijlbord noemde per abuis "#0e52a21"). -->
+        <radialGradient id="sunRood" gradientUnits="userSpaceOnUse" cx="500" cy="500" r="520">
+          <stop offset="0" stop-color="#E52A21"></stop>
+          <stop offset=".5" stop-color="#E52A21"></stop>
+          <stop offset="1" stop-color="#E52A21" stop-opacity="0"></stop>
+        </radialGradient>
+      </defs>
+      <g fill="url(#sunRood)" mask="url(#plusCut)">
         <rect x="465" y="0" width="70" height="500"></rect>
         <rect x="465" y="0" width="70" height="500" transform="rotate(22.5,500,500)"></rect>
         <rect x="465" y="0" width="70" height="500" transform="rotate(45,500,500)"></rect>
@@ -51,6 +59,38 @@
       <h1>De Aqua+ Challenge</h1>
       <p class="sub">Vier technische uitdagingen. Hoe sneller je ze oplost, hoe hoger je op de
         ranglijst komt. Reken op een paar minuten.</p>
+      <ul class="uitdagingen">
+        <li>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          Het circuit compleet maken
+        </li>
+        <li>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2.5A6.5 6.5 0 0 0 8.3 14.3c.5.4.7 1 .7 1.7h6c0-.7.2-1.3.7-1.7A6.5 6.5 0 0 0 12 2.5z"/>
+            <path d="M9.5 19h5"/><path d="M10.5 22h3"/>
+          </svg>
+          Welke component hoort hierbij?
+        </li>
+        <li>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/>
+          </svg>
+          De schakelkast challenge
+        </li>
+        <li>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 1v6"/><path d="M15 1v6"/>
+            <path d="M6 7h12v3a6 6 0 0 1-6 6 6 6 0 0 1-6-6V7z"/><path d="M12 16v6"/>
+          </svg>
+          Storing zoeken
+        </li>
+      </ul>
       <div id="alIngezonden" class="callout let-op verborgen">
         <span class="teken">Let op</span><span id="alIngezondenTekst"></span>
       </div>
@@ -172,5 +212,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="dev-reload.js"></script>
 </body>
 </html>
