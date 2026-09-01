@@ -38,8 +38,35 @@ app.use((req, res, next) => {
   next();
 });
 
+const LIVE_RELOAD = process.env.LIVE_RELOAD === '1';
+
 app.use(express.json({ limit: '16kb' }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: LIVE_RELOAD ? 0 : '1h' }));
+
+/* ---------- live reload, alleen met LIVE_RELOAD=1 (ontwikkeling) ----------
+   De pagina's laden altijd /dev-reload.js; zonder LIVE_RELOAD is dat een
+   no-op, met LIVE_RELOAD herlaadt de browser zodra iets in public/ wijzigt. */
+if (LIVE_RELOAD) {
+  const { watch } = await import('node:fs');
+  const kijkers = new Set();
+  let timer;
+  watch(path.join(__dirname, 'public'), { recursive: true }, () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      for (const res of kijkers) res.write('data: reload\n\n');
+    }, 100);
+  });
+  app.get('/dev-reload', (req, res) => {
+    res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store' });
+    res.flushHeaders();
+    kijkers.add(res);
+    req.on('close', () => kijkers.delete(res));
+  });
+}
+app.get('/dev-reload.js', (req, res) => {
+  res.type('js').set('Cache-Control', 'no-store');
+  res.send(LIVE_RELOAD ? "new EventSource('/dev-reload').onmessage = () => location.reload();" : '');
+});
 
 /* ---------- simpele snelheidsbegrenzer per IP-hash ---------- */
 const tellers = new Map();
