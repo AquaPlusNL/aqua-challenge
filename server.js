@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, q, hashIp, resetDb, statistiek } from './src/db.js';
 import { actieveLevels, levelPubliek, GRACE_MS } from './src/spellen.js';
+import { normaliseerTelefoon } from './src/telefoon.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -19,6 +20,11 @@ const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
+const CONTACT = {
+  telefoon: process.env.CONTACT_TELEFOON || '',
+  telefoonLink: normaliseerTelefoon(process.env.CONTACT_TELEFOON) || '',
+  email: process.env.CONTACT_EMAIL || '',
+};
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
 // Anders krijgt iedereen het IP van de proxy.
@@ -91,6 +97,7 @@ app.get('/api/config', (req, res) =>
     aantalLevels: levels().length,
     vacatureUrl: VACATURE_URL,
     redirectSeconden: REDIRECT_SECONDEN,
+    contact: CONTACT,
   }),
 );
 
@@ -113,6 +120,8 @@ app.post('/api/sessie', (req, res) => {
   res.json({
     sessieId: id,
     aantalLevels: lijst.length,
+    vacatureUrl: VACATURE_URL,
+    contact: CONTACT,
     alIngezonden: Boolean(eerder),
     eerdereTijdMs: eerder ? eerder.totaal_ms : null,
   });
@@ -243,13 +252,14 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
   }
 
   const b = req.body || {};
-  const voornaam = String(b.voornaam || '').trim().replace(/\s+/g, ' ');
-  const telefoon = String(b.telefoon || '').trim();
+  /* Alleen het eerste woord: op de ranglijst komt uitsluitend de voornaam. */
+  const voornaam = String(b.voornaam || '').trim().split(/\s+/)[0];
+  const telefoon = normaliseerTelefoon(b.telefoon);
   const email = String(b.email || '').trim();
   const mbo = b.mboDiploma;
 
   if (voornaam.length < 2) return fout(res, 400, 'Vul je voornaam in.');
-  if (!/^[0-9+()\s-]{8,20}$/.test(telefoon)) return fout(res, 400, 'Vul een geldig telefoonnummer in.');
+  if (!telefoon) return fout(res, 400, 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12 34 56 78.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
   if (mbo !== true && mbo !== false) return fout(res, 400, 'Geef aan of je een mbo-diploma elektrotechniek hebt.');
 

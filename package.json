@@ -9,7 +9,8 @@
     "start": "node --env-file-if-exists=.env server.js",
     "dev": "node --env-file-if-exists=.env --watch server.js",
     "reset": "node --env-file-if-exists=.env scripts/reset.js",
-    "stats": "node --env-file-if-exists=.env scripts/stats.js"
+    "stats": "node --env-file-if-exists=.env scripts/stats.js",
+    "test": "node scripts/test-telefoon.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.7.0",

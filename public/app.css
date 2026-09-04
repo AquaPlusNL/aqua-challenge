@@ -285,6 +285,15 @@ table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; fon
 .voet .slogan { margin-left: auto; font-style: italic; color: var(--aqua-sky); }
 
 .verborgen { display: none !important; }
+.voet a { color: inherit; font-weight: var(--fw-bold); }
+.overslaan { text-align: center; margin-top: var(--sp-2); }
+
+/* Telefoon: tekening zo breed mogelijk, labels blijven leesbaar */
+@media (max-width: 460px) {
+  body { padding: var(--sp-3) var(--sp-2) var(--sp-8); }
+  .body { padding: var(--sp-4); }
+  .tekening { padding: var(--sp-2); }
+}
 .mini { font-size: var(--fs-caption); color: var(--ink-soft); margin-top: var(--sp-4); }
 
 /* Sunburst als rustig merkaccent achter de kopbalk */
@@ -407,3 +416,94 @@ table.bord td.uitslag.nok { color: var(--amber-ink); }
 .aftelTekst { font-size: var(--fs-small); color: var(--ink-soft); margin: var(--sp-3) 0 var(--sp-4); }
 .aftelTekst strong { color: var(--aqua-blue); font-size: var(--fs-h1); font-variant-numeric: tabular-nums; }
 a.knop { display: block; text-align: center; text-decoration: none; }
+
+/* ============================================================
+   Donker thema (voorstel marketing, sept 2026): donkerblauw vlak,
+   witte tekst en iconen, rood als accent, lichtblauw voor bijregels.
+   Tekeningen blijven op licht "papier", zodat de schema's leesbaar
+   blijven zonder de tekencode aan te passen.
+   Verwijder dit blok om terug te gaan naar het lichte thema.
+   ============================================================ */
+:root {
+  --rood: #E52A21;                 /* bevestigd door marketing, zie sunburst */
+  --vlak:        rgba(255,255,255,.08);
+  --vlak-hover:  rgba(255,255,255,.14);
+  --rand:        rgba(255,255,255,.18);
+  --focus-ring-color: #FFFFFF;
+}
+
+body { background: var(--aqua-blue-700); color: var(--white); }
+
+.kaart { background: var(--aqua-blue-700); border-color: var(--rand); box-shadow: none; }
+.kop   { background: var(--aqua-blue-700); border-bottom: 1px solid var(--rand); }
+.kop .sun { opacity: .9; }
+.voet  { background: var(--aqua-blue-700); border-top: 1px solid var(--rand); color: var(--white); }
+.voet .slogan { color: var(--aqua-sky); }
+
+h1, h2, .vraag, label { color: var(--white); }
+.sub, .mini, .stap, .leeg, .aftelTekst, .akkoord, .scorevlak .label { color: var(--aqua-sky); }
+.sub strong, .aftelTekst strong { color: var(--white); }
+.akkoord a { color: var(--white); }
+
+/* Klok */
+.klok { color: var(--white); background: var(--vlak); border-color: var(--rand); }
+.klok.laag    { color: var(--white); background: rgba(227,154,31,.25); border-color: var(--amber); }
+.klok.kritiek { color: var(--white); background: rgba(229,42,33,.35); border-color: var(--rood); }
+.klokbalk { background: var(--rand); }
+.klokbalk > i { background: var(--rood); }
+.klokbalk.laag > i { background: var(--amber); }
+.stappen > i { background: var(--rand); }
+.stappen > i.nu { background: var(--rood); }
+
+/* Waaier draait mee met de klok (zie tikKlok in app.js) */
+.sun .stralen { transform-box: fill-box; transform-origin: center; transition: transform .1s linear; }
+
+/* Vlakken */
+.uitdagingen li, .scorevlak, .callout { background: var(--vlak); border-color: var(--rand); }
+.uitdagingen svg { color: var(--white); }
+.scorevlak .cijfer { color: var(--white); }
+.callout { border-left-color: var(--rood); }
+.callout.goed   { border-left-color: var(--green); background: rgba(35,119,58,.3);  color: var(--white); }
+.callout.fout   { border-left-color: var(--rood);  background: rgba(229,42,33,.3);  color: var(--white); }
+.callout.let-op { border-left-color: var(--amber); background: rgba(227,154,31,.3); color: var(--white); }
+.pill { background: var(--rood); }
+.tekening, .schema { background: var(--white); border-color: transparent; }
+
+/* Opties en keuzes */
+.optie, .keuzeknop { background: var(--vlak); border-color: var(--rand); color: var(--white); }
+.optie:hover:not(:disabled), .keuzeknop:hover { background: var(--vlak-hover); border-color: var(--white); }
+.optie.gekozen, .keuzeknop.aan {
+  background: rgba(229,42,33,.25); border-color: var(--rood); color: var(--white);
+  box-shadow: inset 0 0 0 1px var(--rood);
+}
+.optie.juist   { background: rgba(35,119,58,.35); border-color: var(--green); color: var(--white); }
+.optie.onjuist { background: rgba(229,42,33,.35); border-color: var(--rood);  color: var(--white); }
+.opties.letters .optie .letter { background: var(--vlak-hover); color: var(--white); }
+.opties.letters .optie.gekozen .letter { background: var(--rood); }
+.opties.letters .optie.onjuist .letter { background: var(--rood); }
+
+/* Knoppen */
+.knop-primair { background: var(--rood); }
+.knop-primair:hover:not(:disabled) { background: var(--rood); filter: brightness(.85); }
+.knop-secundair { background: transparent; color: var(--white); border-color: var(--white); }
+.knop-secundair:hover:not(:disabled) { background: var(--vlak); }
+
+/* Formulier */
+input, select { background: var(--vlak); color: var(--white); border-color: var(--rand); }
+input::placeholder { color: var(--aqua-sky); opacity: .7; }
+input:hover, select:hover { border-color: var(--white); }
+
+/* Ranglijst */
+table.bord th { background: var(--vlak-hover); color: var(--aqua-sky); }
+table.bord td { border-bottom-color: var(--rand); }
+table.bord tbody tr:nth-child(even) { background: var(--vlak); }
+table.bord tbody tr.ikzelf { background: var(--vlak-hover); }
+table.bord tbody tr.ikzelf td.pos { border-left-color: var(--rood); }
+table.bord tbody tr.ikzelf td { color: var(--white); }
+table.bord td.pos { color: var(--aqua-sky); }
+table.bord td.uitslag.nok { color: var(--amber); }
+
+/* Aftellen */
+.aftellen { border-top-color: var(--rand); }
+.aftellen .lijn { background: var(--rand); }
+.aftellen .lijn > i { background: var(--rood); }

@@ -44,7 +44,7 @@
     <g class="hotspot" data-klik="${id}" tabindex="0" role="button" aria-label="${label}">
       <rect class="vlak" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"
             fill="#fff" stroke="${INK}" stroke-width="2"/>
-      <text class="naam" x="${x + w / 2}" y="${y + h / 2 + 4}" font-size="11"
+      <text class="naam" x="${x + w / 2}" y="${y + h / 2 + 4}" font-size="14"
             text-anchor="middle" fill="${GRIJS}">${label}</text>
     </g>`;
 
@@ -54,20 +54,20 @@
       <svg viewBox="0 0 460 180" role="img"
            aria-label="Stroomkring met voeding, schakelaar en lamp, waarbij een verbinding ontbreekt">
         <rect x="24" y="56" width="70" height="48" rx="4" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
-        <text x="59" y="85" font-size="11" text-anchor="middle" fill="${GRIJS}">voeding</text>
+        <text x="59" y="85" font-size="14" text-anchor="middle" fill="${GRIJS}">voeding</text>
 
         <line x1="94" y1="66" x2="180" y2="66" stroke="${INK}" stroke-width="2.5"/>
         <line x1="180" y1="66" x2="258" y2="66" stroke="${BLAUW}" stroke-width="2.5" stroke-dasharray="6 5"/>
         <line x1="196" y1="52" x2="242" y2="80" stroke="${BLAUW}" stroke-width="2.5"/>
         <line x1="242" y1="52" x2="196" y2="80" stroke="${BLAUW}" stroke-width="2.5"/>
-        <text x="219" y="40" font-size="10" text-anchor="middle" fill="${BLAUW}">hier klopt iets niet</text>
+        <text x="219" y="40" font-size="14" text-anchor="middle" fill="${BLAUW}">hier klopt iets niet</text>
         <line x1="258" y1="66" x2="356" y2="66" stroke="${INK}" stroke-width="2.5"/>
 
         <circle cx="356" cy="94" r="20" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
         <line x1="342" y1="80" x2="370" y2="108" stroke="${INK}" stroke-width="1.6"/>
         <line x1="370" y1="80" x2="342" y2="108" stroke="${INK}" stroke-width="1.6"/>
         <line x1="356" y1="66" x2="356" y2="74" stroke="${INK}" stroke-width="2.5"/>
-        <text x="384" y="98" font-size="11" text-anchor="start" fill="${GRIJS}">lamp</text>
+        <text x="384" y="98" font-size="14" text-anchor="start" fill="${GRIJS}">lamp</text>
 
         <line x1="356" y1="114" x2="356" y2="152" stroke="${INK}" stroke-width="2.5"/>
         <line x1="356" y1="152" x2="230" y2="152" stroke="${INK}" stroke-width="2.5"/>
@@ -76,7 +76,7 @@
         <circle cx="200" cy="136" r="3" fill="${INK}"/>
         <line x1="200" y1="152" x2="59" y2="152" stroke="${INK}" stroke-width="2.5"/>
         <line x1="59" y1="152" x2="59" y2="104" stroke="${INK}" stroke-width="2.5"/>
-        <text x="215" y="172" font-size="10" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
+        <text x="215" y="172" font-size="14" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
       </svg>`,
 
     /* ---------- Level 2: hek en motor ---------- */
@@ -88,7 +88,7 @@
         <line x1="60" y1="42" x2="60" y2="118" stroke="${INK}" stroke-width="1.6"/>
         <line x1="80" y1="42" x2="80" y2="118" stroke="${INK}" stroke-width="1.6"/>
         <line x1="100" y1="42" x2="100" y2="118" stroke="${INK}" stroke-width="1.6"/>
-        <text x="72" y="138" font-size="11" text-anchor="middle" fill="${GRIJS}">beveiligingshek</text>
+        <text x="72" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">beveiligingshek</text>
 
         <line x1="120" y1="80" x2="188" y2="80" stroke="${INK}" stroke-width="2.5"/>
         <rect x="188" y="60" width="76" height="40" rx="4" fill="#fff" stroke="${BLAUW}"
@@ -98,7 +98,7 @@
 
         <circle cx="366" cy="80" r="30" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
         <text x="366" y="86" font-size="16" text-anchor="middle" fill="${INK}">M</text>
-        <text x="366" y="138" font-size="11" text-anchor="middle" fill="${GRIJS}">motor</text>
+        <text x="366" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">motor</text>
       </svg>`,
 
     /* ---------- Level 3: schakelkast ---------- */
@@ -106,12 +106,12 @@
       <svg viewBox="0 0 460 160" role="img" aria-label="Vereenvoudigde schakelkast met vier onderdelen">
         <rect x="14" y="14" width="432" height="132" rx="6" fill="none" stroke="${INK}"
               stroke-width="2" stroke-dasharray="4 4"/>
-        <text x="24" y="34" font-size="10" fill="${GRIJS}" letter-spacing="1.5">SCHAKELKAST</text>
+        <text x="24" y="34" font-size="14" fill="${GRIJS}" letter-spacing="1.5">SCHAKELKAST</text>
         <line x1="40" y1="96" x2="420" y2="96" stroke="${INK}" stroke-width="2"/>
-        ${blok('voeding', 34, 74, 84, 44, 'voeding')}
-        ${blok('automaat', 138, 74, 84, 44, 'automaat')}
-        ${blok('relais', 242, 74, 84, 44, 'relais')}
-        ${blok('motor', 346, 74, 84, 44, 'motor')}
+        ${blok('voeding', 34, 66, 84, 60, 'voeding')}
+        ${blok('automaat', 138, 66, 84, 60, 'automaat')}
+        ${blok('relais', 242, 66, 84, 60, 'relais')}
+        ${blok('motor', 346, 66, 84, 60, 'motor')}
       </svg>`,
 
     /* ---------- Level 4: storing zoeken ---------- */
@@ -119,24 +119,24 @@
       <svg viewBox="0 0 460 176" role="img"
            aria-label="Installatie met voeding, zekeringsautomaat, relais en motor, met een losgeraakte draad">
         <line x1="70" y1="70" x2="390" y2="70" stroke="${INK}" stroke-width="2.5"/>
-        ${blok('voeding', 24, 50, 78, 40, 'voeding')}
-        ${blok('automaat', 122, 50, 92, 40, 'automaat')}
-        ${blok('relais', 234, 50, 78, 40, 'relais')}
+        ${blok('voeding', 24, 40, 78, 60, 'voeding')}
+        ${blok('automaat', 122, 40, 92, 60, 'automaat')}
+        ${blok('relais', 234, 40, 78, 60, 'relais')}
 
         <g class="hotspot" data-klik="draad-relais-motor" tabindex="0" role="button"
            aria-label="draad tussen relais en motor">
-          <rect class="raak" x="306" y="46" width="86" height="48"/>
-          <rect class="vlak" x="310" y="50" width="78" height="40" rx="4" fill="none" stroke="none"/>
+          <rect class="raak" x="306" y="36" width="86" height="68"/>
+          <rect class="vlak" x="310" y="40" width="78" height="60" rx="4" fill="none" stroke="none"/>
           <line x1="312" y1="70" x2="340" y2="70" stroke="${INK}" stroke-width="2.5"/>
           <line x1="360" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
           <line x1="340" y1="70" x2="348" y2="58" stroke="${INK}" stroke-width="2.5"/>
           <circle cx="349" cy="57" r="3" fill="${INK}"/>
-          <text class="naam" x="350" y="106" font-size="10" text-anchor="middle" fill="${GRIJS}">draad</text>
+          <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">draad</text>
         </g>
 
         <line x1="386" y1="70" x2="410" y2="70" stroke="${INK}" stroke-width="2.5"/>
-        <line x1="410" y1="70" x2="410" y2="118" stroke="${INK}" stroke-width="2.5"/>
-        ${blok('motor', 372, 118, 76, 40, 'motor')}
+        <line x1="410" y1="70" x2="410" y2="116" stroke="${INK}" stroke-width="2.5"/>
+        ${blok('motor', 372, 116, 76, 56, 'motor')}
       </svg>`,
   };
 
@@ -173,6 +173,10 @@
     const deel = staat.totaleMs ? over / staat.totaleMs : 0;
     $('klokTekst').textContent = `${Math.ceil(over / 1000)}s`;
     $('klokvulling').style.transform = `scaleX(${deel})`;
+    /* Waaier in de kop draait één rondje per level, als extra tijdindicatie. */
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      $('sunStralen').style.transform = `rotate(${(1 - deel) * 360}deg)`;
+    }
     const niveau = over <= 5000 ? 'kritiek' : over <= 12000 ? 'laag' : '';
     $('klok').className = `klok ${niveau}`.trim();
     $('klokbalk').className = `klokbalk ${niveau}`.trim();
@@ -506,11 +510,22 @@
     }
   });
 
+  /* Voettekst: tel: en mailto: uit .env (CONTACT_TELEFOON, CONTACT_EMAIL). */
+  function vulContact(c = {}) {
+    const tel = $('contactTel'), mail = $('contactMail');
+    if (c.telefoonLink) { tel.href = `tel:${c.telefoonLink}`; tel.title = c.telefoon; }
+    else tel.replaceWith(tel.textContent);
+    if (c.email) { mail.href = `mailto:${c.email}`; mail.title = c.email; }
+    else mail.replaceWith(mail.textContent);
+  }
+
   (async function init() {
     try {
       const s = await api('/api/sessie', { method: 'POST' });
       staat.sessieId = s.sessieId;
       staat.aantalLevels = s.aantalLevels;
+      $('overslaanLink').href = s.vacatureUrl || '/vacatures';
+      vulContact(s.contact);
       if (s.alIngezonden) {
         $('alIngezonden').classList.remove('verborgen');
         $('alIngezondenTekst').textContent =

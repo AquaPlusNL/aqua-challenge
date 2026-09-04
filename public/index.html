@@ -26,7 +26,7 @@
           <stop offset="1" stop-color="#E52A21" stop-opacity="0"></stop>
         </radialGradient>
       </defs>
-      <g fill="url(#sunRood)" mask="url(#plusCut)">
+      <g class="stralen" id="sunStralen" fill="url(#sunRood)" mask="url(#plusCut)">
         <rect x="465" y="0" width="70" height="500"></rect>
         <rect x="465" y="0" width="70" height="500" transform="rotate(22.5,500,500)"></rect>
         <rect x="465" y="0" width="70" height="500" transform="rotate(45,500,500)"></rect>
@@ -153,8 +153,8 @@
       <h1>Wie ben jij?</h1>
       <p class="sub">Vier velden, klaar. Een collega van Aqua+ neemt contact met je op.</p>
       <form id="formulier" novalidate>
-        <label for="voornaam">Voornaam</label>
-        <input id="voornaam" autocomplete="given-name" placeholder="Je voornaam" required>
+        <label for="voornaam">Alleen je voornaam</label>
+        <input id="voornaam" autocomplete="given-name" placeholder="Bijvoorbeeld Sanne" required>
 
         <label for="telefoon">Telefoonnummer</label>
         <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
@@ -180,6 +180,10 @@
           Bekijk de vacatures
         </button>
       </form>
+      <a class="knop knop-secundair" id="overslaanLink" href="/vacatures" style="margin-top:var(--sp-2)">
+        Liever geen contact? Direct naar de vacatures
+      </a>
+      <p class="mini overslaan">Sla je het formulier over, dan slaan we niets van je op.</p>
     </div>
 
     <!-- 7. bedanken, ranglijst en aftellen -->
@@ -206,7 +210,8 @@
   </div>
 
   <div class="voet">
-    <span>Vragen over werken bij Aqua+? Bel of mail ons, we denken graag met je mee.</span>
+    <span>Vragen over werken bij Aqua+? <a id="contactTel" href="#">Bel</a> of
+      <a id="contactMail" href="#">mail</a> ons, we denken graag met je mee.</span>
     <span class="slogan">Samen voor meer brandveiligheid</span>
   </div>
 </div>

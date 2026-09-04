@@ -115,7 +115,7 @@ zet de klok niet terug. De ranglijst is dus niet te manipuleren met devtools.
 | `POST` | `/api/sessie` | Start een sessie. Geeft `sessieId`, `aantalLevels`, `alIngezonden`. |
 | `GET` | `/api/sessie/:id/level` | Huidig level zonder antwoord, start de klok. |
 | `POST` | `/api/sessie/:id/antwoord` | Body `{ keuze }`. Fout antwoord geeft `opnieuw: true`. |
-| `POST` | `/api/sessie/:id/inzending` | Body `{ voornaam, telefoon, email, mboDiploma }`. |
+| `POST` | `/api/sessie/:id/inzending` | Body `{ voornaam, telefoon, email, mboDiploma }`. Van `voornaam` bewaart de server alleen het eerste woord. `telefoon` wordt genormaliseerd naar `+31...` (zie `src/telefoon.js`); ongeldig nummer geeft 400. |
 | `GET` | `/api/leaderboard` | Tien snelste tijden. |
 | `GET` | `/api/admin/statistiek` | Afhaakmomenten per level. Header `x-admin-token`. |
 | `POST` | `/api/admin/reset` | Body `{ wat: "inzendingen" \| "sessies" \| "alles" }`. |
@@ -162,7 +162,11 @@ privacy gaat.
 - **Een IP-adres is een persoonsgegeven.** Een gehasht IP geldt als
   pseudonimisering, niet als anonimisering. Benoem het in de privacyverklaring.
 - **Op de ranglijst staan alleen voornaam en tijd.** Telefoonnummer en e-mailadres
-  staan in de database voor het terugbelmoment en komen niet op de pagina.
+  staan in de database voor het terugbelmoment en komen niet op de pagina. De server
+  bewaart van het naamveld alleen het eerste woord, zodat een ingevulde achternaam
+  nooit op het bord komt.
+- **Wie geen contact wil, slaat het formulier over.** Link onder het formulier gaat
+  direct naar de vacatures; er wordt dan niets opgeslagen.
   Woonplaats is uit het formulier gehaald, die stond niet in de nieuwe opzet.
 - **Zonder vinkje slaat de server niets op.** De toestemmingstekst noemt expliciet
   wat er op de ranglijst komt.
