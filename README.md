@@ -165,8 +165,9 @@ privacy gaat.
   staan in de database voor het terugbelmoment en komen niet op de pagina. De server
   bewaart van het naamveld alleen het eerste woord, zodat een ingevulde achternaam
   nooit op het bord komt.
-- **Wie geen contact wil, slaat het formulier over.** Link onder het formulier gaat
-  direct naar de vacatures; er wordt dan niets opgeslagen.
+- **Wie geen contact wil, slaat het formulier over.** Het startscherm zegt vooraf dat
+  gegevens achterlaten vrijwillig is; de knop onder het formulier gaat direct naar de
+  vacatures en er wordt dan niets opgeslagen.
   Woonplaats is uit het formulier gehaald, die stond niet in de nieuwe opzet.
 - **Zonder vinkje slaat de server niets op.** De toestemmingstekst noemt expliciet
   wat er op de ranglijst komt.

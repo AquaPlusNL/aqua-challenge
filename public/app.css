@@ -33,7 +33,7 @@ body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow: clip; /* clip, niet hidden: anders werkt position: sticky van de Controleer-knop niet */
 }
 
 .kop {
@@ -293,6 +293,16 @@ table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; fon
   body { padding: var(--sp-3) var(--sp-2) var(--sp-8); }
   .body { padding: var(--sp-4); }
   .tekening { padding: var(--sp-2); }
+
+  /* Levelscherm verticaal compacter, zodat de Controleer-knop in beeld blijft */
+  .kop { padding: var(--sp-3) var(--sp-4); }
+  .kop img { height: 24px; }
+  .spelbalk { margin-bottom: var(--sp-2); }
+  .klokbalk, .stappen { margin-bottom: var(--sp-3); }
+  #scherm-level h1 { font-size: var(--fs-h2); }
+  #scherm-level .sub, .vraag, .tekening, .opties { margin-bottom: var(--sp-3); }
+  .opties.letters .optie { padding: var(--sp-2) var(--sp-3); font-size: var(--fs-small); }
+  #checkKnop { position: sticky; bottom: var(--sp-2); box-shadow: var(--shadow-card); }
 }
 .mini { font-size: var(--fs-caption); color: var(--ink-soft); margin-top: var(--sp-4); }
 

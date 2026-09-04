@@ -20,11 +20,7 @@ const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
-const CONTACT = {
-  telefoon: process.env.CONTACT_TELEFOON || '',
-  telefoonLink: normaliseerTelefoon(process.env.CONTACT_TELEFOON) || '',
-  email: process.env.CONTACT_EMAIL || '',
-};
+const CONTACT = { email: process.env.CONTACT_EMAIL || '' };
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
 // Anders krijgt iedereen het IP van de proxy.

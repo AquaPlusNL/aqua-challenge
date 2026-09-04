@@ -537,11 +537,9 @@ import { normaliseerTelefoon } from './telefoon.js';
     }
   });
 
-  /* Voettekst: tel: en mailto: uit .env (CONTACT_TELEFOON, CONTACT_EMAIL). */
+  /* Voettekst: mailto: uit .env (CONTACT_EMAIL). */
   function vulContact(c = {}) {
-    const tel = $('contactTel'), mail = $('contactMail');
-    if (c.telefoonLink) { tel.href = `tel:${c.telefoonLink}`; tel.title = c.telefoon; }
-    else tel.replaceWith(tel.textContent);
+    const mail = $('contactMail');
     if (c.email) { mail.href = `mailto:${c.email}`; mail.title = c.email; }
     else mail.replaceWith(mail.textContent);
   }
