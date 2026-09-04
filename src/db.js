@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -6,8 +6,8 @@ import path from 'node:path';
 const DB_PATH = process.env.DB_PATH || './data/challenge.db';
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-export const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
+export const db = new DatabaseSync(DB_PATH);
+db.exec('PRAGMA journal_mode = WAL');
 
 db.exec(`
   /* Een sessie is een poging. We bewaren per sessie hoe ver iemand

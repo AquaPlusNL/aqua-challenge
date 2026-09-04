@@ -169,6 +169,8 @@ import { normaliseerTelefoon } from './telefoon.js';
   function stopKlok() {
     if (staat.klokId) clearInterval(staat.klokId);
     staat.klokId = null;
+    /* Waaier terug in de beginstand, anders staat de plus schuin op de volgende schermen. */
+    $('sunStralen').style.transform = '';
   }
   function tikKlok() {
     const over = Math.max(0, staat.eindeOp - Date.now());
@@ -311,7 +313,12 @@ import { normaliseerTelefoon } from './telefoon.js';
 
     /* Level afgesloten. */
     stopKlok();
-    staat.gedaan.push({ nummer: staat.level.nummer, gehaald: r.goed, tijdMs: r.levelTijdMs });
+    staat.gedaan.push({
+      nummer: staat.level.nummer,
+      gehaald: r.goed,
+      tijdMs: r.levelTijdMs,
+      fouten: r.foutePogingen || 0,
+    });
     tekenStappen(staat.level.nummer);
 
     document.querySelectorAll('.optie').forEach((o) => {
@@ -364,12 +371,13 @@ import { normaliseerTelefoon } from './telefoon.js';
     } levels goed`;
 
     $('levelTabel').innerHTML =
-      `<thead><tr><th></th><th>Level</th><th style="text-align:right">Tijd</th></tr></thead><tbody>` +
+      `<thead><tr><th></th><th>Level</th><th style="text-align:right">Fouten</th><th style="text-align:right">Tijd</th></tr></thead><tbody>` +
       staat.gedaan
         .map(
           (x) => `<tr>
             <td class="uitslag ${x.gehaald ? 'ok' : 'nok'}">${x.gehaald ? '&#10003;' : '&#10007;'}</td>
             <td>Level ${x.nummer}</td>
+            <td class="tijd">${x.fouten}</td>
             <td class="tijd">${tijd(x.tijdMs)}</td>
           </tr>`,
         )

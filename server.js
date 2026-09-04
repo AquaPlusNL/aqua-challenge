@@ -232,6 +232,7 @@ app.post('/api/sessie/:id/antwoord', (req, res) => {
     motivatie: level.motivatie,
     volgendeKnop: level.volgendeKnop,
     levelTijdMs: tijdMs,
+    foutePogingen: s.fouten_huidig,
     tussenstandMs: totaalMs,
     klaar,
     totaalMs: klaar ? totaalMs : null,
