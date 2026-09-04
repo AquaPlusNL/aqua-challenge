@@ -48,6 +48,8 @@ const LIVE_RELOAD = process.env.LIVE_RELOAD === '1';
 
 app.use(express.json({ limit: '16kb' }));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: LIVE_RELOAD ? 0 : '1h' }));
+/* Telefoonvalidatie gedeeld met de browser: zelfde regels aan beide kanten. */
+app.get('/telefoon.js', (req, res) => res.sendFile(path.join(__dirname, 'src/telefoon.js')));
 
 /* ---------- live reload, alleen met LIVE_RELOAD=1 (ontwikkeling) ----------
    De pagina's laden altijd /dev-reload.js; zonder LIVE_RELOAD is dat een

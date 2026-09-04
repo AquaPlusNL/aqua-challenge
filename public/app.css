@@ -450,7 +450,8 @@ h1, h2, .vraag, label { color: var(--white); }
 .klok.laag    { color: var(--white); background: rgba(227,154,31,.25); border-color: var(--amber); }
 .klok.kritiek { color: var(--white); background: rgba(229,42,33,.35); border-color: var(--rood); }
 .klokbalk { background: var(--rand); }
-.klokbalk > i { background: var(--rood); }
+.klokbalk > i { background: var(--aqua-cyan); }
+.klokbalk.kritiek > i { background: var(--rood); }
 .klokbalk.laag > i { background: var(--amber); }
 .stappen > i { background: var(--rand); }
 .stappen > i.nu { background: var(--rood); }
@@ -492,6 +493,12 @@ h1, h2, .vraag, label { color: var(--white); }
 input, select { background: var(--vlak); color: var(--white); border-color: var(--rand); }
 input::placeholder { color: var(--aqua-sky); opacity: .7; }
 input:hover, select:hover { border-color: var(--white); }
+input[aria-invalid="true"] {
+  border-color: var(--rood);
+  box-shadow: inset 0 0 0 1px var(--rood);
+  background: rgba(229,42,33,.18);
+}
+#telefoonFout { margin-top: var(--sp-2); }
 
 /* Ranglijst */
 table.bord th { background: var(--vlak-hover); color: var(--aqua-sky); }

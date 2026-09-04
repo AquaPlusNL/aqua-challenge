@@ -158,6 +158,8 @@
 
         <label for="telefoon">Telefoonnummer</label>
         <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
+        <div class="callout fout verborgen" id="telefoonFout">Dit lijkt geen geldig telefoonnummer.
+          Gebruik bijvoorbeeld 06 12 34 56 78 of +31 6 12345678.</div>
 
         <label for="email">E-mailadres</label>
         <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="jouw@email.nl" required>
@@ -216,7 +218,7 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 <script src="dev-reload.js"></script>
 </body>
 </html>

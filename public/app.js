@@ -5,6 +5,8 @@
    server. De klok hier is weergave; de server meet zelf de tijd
    en die tijd is de score.
    ============================================================ */
+import { normaliseerTelefoon } from './telefoon.js';
+
 (() => {
   'use strict';
 
@@ -390,9 +392,26 @@
     }),
   );
 
+  /* Telefoonnummer direct na invullen controleren, zelfde regels als de server. */
+  function checkTelefoon() {
+    const veld = $('telefoon');
+    const fout = veld.value.trim() !== '' && !normaliseerTelefoon(veld.value);
+    $('telefoonFout').classList.toggle('verborgen', !fout);
+    veld.setAttribute('aria-invalid', String(fout));
+    return !fout;
+  }
+  $('telefoon').addEventListener('blur', checkTelefoon);
+  $('telefoon').addEventListener('input', () => {
+    if (normaliseerTelefoon($('telefoon').value)) checkTelefoon();
+  });
+
   $('formulier').addEventListener('submit', async (e) => {
     e.preventDefault();
     $('formFout').classList.add('verborgen');
+    if (!checkTelefoon() || !$('telefoon').value.trim()) {
+      $('telefoonFout').classList.remove('verborgen');
+      return $('telefoon').focus();
+    }
     if (!$('akkoord').checked) {
       return meldFout($('formFout'), 'We hebben je toestemming nodig om contact op te nemen.');
     }
