@@ -286,6 +286,7 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
       email,
       mbo_diploma: mbo ? 1 : 0,
       totaal_ms: s.totaal_ms,
+      fouten: JSON.parse(s.resultaten).reduce((a, r) => a + (r.foutePogingen || 0), 0),
       aangemaakt: Date.now(),
     }).lastInsertRowid;
   } catch (e) {
@@ -319,6 +320,7 @@ function bordPayload(eigenId) {
     positie: i + 1,
     voornaam: r.voornaam,
     tijdMs: r.totaal_ms,
+    fouten: r.fouten,
     ikzelf: eigenId != null && r.id === eigenId,
   }));
   let eigenPositie = null;
@@ -326,7 +328,11 @@ function bordPayload(eigenId) {
   if (eigenId != null) {
     const rij = q.inzending.get(eigenId);
     if (rij) {
-      eigenPositie = q.positie.get(rij.totaal_ms, rij.totaal_ms, rij.aangemaakt).positie;
+      eigenPositie = q.positie.get({
+        totaal_ms: rij.totaal_ms,
+        fouten: rij.fouten,
+        aangemaakt: rij.aangemaakt,
+      }).positie;
       eigenTijdMs = rij.totaal_ms;
     }
   }

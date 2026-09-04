@@ -38,13 +38,20 @@ db.exec(`
     email        TEXT NOT NULL,
     mbo_diploma  INTEGER NOT NULL,
     totaal_ms    INTEGER NOT NULL,
+    fouten       INTEGER NOT NULL DEFAULT 0,
     aangemaakt   INTEGER NOT NULL
   );
 
-  CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, aangemaakt ASC);
+  CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, fouten ASC, aangemaakt ASC);
   CREATE INDEX IF NOT EXISTS idx_ses_ip  ON sessies (ip_hash);
   CREATE INDEX IF NOT EXISTS idx_ses_lvl ON sessies (hoogste_level);
 `);
+
+/* Migratie voor bestaande databases: kolom fouten (som van foute pogingen,
+   tweede sorteersleutel op de ranglijst na de tijd). */
+if (!db.prepare(`PRAGMA table_info(inzendingen)`).all().some((k) => k.name === 'fouten')) {
+  db.exec(`ALTER TABLE inzendingen ADD COLUMN fouten INTEGER NOT NULL DEFAULT 0`);
+}
 
 /* ------------------------------------------------------------
    IP-hash. Het IP-adres wordt NOOIT onversleuteld opgeslagen:
@@ -84,18 +91,20 @@ export const q = {
   inzending: db.prepare(`SELECT * FROM inzendingen WHERE id = ?`),
   bewaarInzending: db.prepare(
     `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email,
-                              mbo_diploma, totaal_ms, aangemaakt)
+                              mbo_diploma, totaal_ms, fouten, aangemaakt)
      VALUES (@sessie_id, @ip_hash, @voornaam, @telefoon, @email,
-             @mbo_diploma, @totaal_ms, @aangemaakt)`,
+             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt)`,
   ),
-  /* Snelste tijden bovenaan. */
+  /* Snelste tijd bovenaan; bij gelijke tijd wint wie de minste fouten maakte. */
   top: db.prepare(
-    `SELECT id, voornaam, totaal_ms FROM inzendingen
-     ORDER BY totaal_ms ASC, aangemaakt ASC LIMIT ?`,
+    `SELECT id, voornaam, totaal_ms, fouten FROM inzendingen
+     ORDER BY totaal_ms ASC, fouten ASC, aangemaakt ASC LIMIT ?`,
   ),
   positie: db.prepare(
     `SELECT COUNT(*) + 1 AS positie FROM inzendingen
-     WHERE totaal_ms < ? OR (totaal_ms = ? AND aangemaakt < ?)`,
+     WHERE totaal_ms < @totaal_ms
+        OR (totaal_ms = @totaal_ms AND fouten < @fouten)
+        OR (totaal_ms = @totaal_ms AND fouten = @fouten AND aangemaakt < @aangemaakt)`,
   ),
   aantalInzendingen: db.prepare(`SELECT COUNT(*) AS n FROM inzendingen`),
   verwijderOudeSessies: db.prepare(`DELETE FROM sessies WHERE laatst_actief < ?`),

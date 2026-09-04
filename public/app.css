@@ -49,8 +49,6 @@ body {
   margin-left: auto;
   margin-right: 72px; /* vrij van het sunburst-motief in de hoek */
   font-size: var(--fs-caption);
-  letter-spacing: var(--ls-eyebrow);
-  text-transform: uppercase;
   color: var(--aqua-sky);
   text-align: right;
 }

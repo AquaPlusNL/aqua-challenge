@@ -12,8 +12,12 @@ import { normaliseerTelefoon } from './telefoon.js';
 
   const $ = (id) => document.getElementById(id);
   const SCHERMEN = ['laden', 'start', 'intro', 'level', 'resultaat', 'formulier', 'bedank'];
-  const toon = (naam) =>
+  const toon = (naam) => {
     SCHERMEN.forEach((s) => $(`scherm-${s}`).classList.toggle('verborgen', s !== naam));
+    /* Alleen het levelscherm heeft een klok. Op elk ander scherm staat de waaier
+       stil in de beginstand, met de plus recht. */
+    if (naam !== 'level') $('sunStralen').style.transform = '';
+  };
 
   const INK = '#26323D';
   const GRIJS = '#59626B';
@@ -178,7 +182,7 @@ import { normaliseerTelefoon } from './telefoon.js';
     $('klokTekst').textContent = `${Math.ceil(over / 1000)}s`;
     $('klokvulling').style.transform = `scaleX(${deel})`;
     /* Waaier in de kop draait één rondje per level, als extra tijdindicatie. */
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (staat.klokId && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       $('sunStralen').style.transform = `rotate(${(1 - deel) * 360}deg)`;
     }
     const niveau = over <= 5000 ? 'kritiek' : over <= 12000 ? 'laag' : '';
@@ -463,13 +467,14 @@ import { normaliseerTelefoon } from './telefoon.js';
     const rijen = r.leaderboard || [];
     $('bordTabel').innerHTML = rijen.length
       ? `<table class="bord">
-           <thead><tr><th>#</th><th>Naam</th><th style="text-align:right">Tijd</th></tr></thead>
+           <thead><tr><th>#</th><th>Naam</th><th style="text-align:right">Tijd</th><th style="text-align:right">Fouten</th></tr></thead>
            <tbody>${rijen
              .map(
                (x) => `<tr class="${x.ikzelf ? 'ikzelf' : ''}">
                          <td class="pos">${x.positie}</td>
                          <td>${ontsnap(x.voornaam)}</td>
                          <td class="tijd">${tijd(x.tijdMs)}</td>
+                         <td class="tijd">${x.fouten ?? 0}</td>
                        </tr>`,
              )
              .join('')}</tbody>
