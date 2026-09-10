@@ -58,7 +58,7 @@ Staan in `src/spellen.js`. Twee soorten:
 | --- | --- | --- | --- |
 | 1 | Het circuit compleet maken | 45s | A, draad tussen voeding en lamp |
 | 2 | Welke component hoort hierbij? | 45s | A, relais |
-| 3 | De schakelkast challenge | 60s | automaat |
+| 3 | De schakelkast | 60s | automaat |
 | 4 | Storing zoeken | 90s | draad tussen relais en motor |
 
 De kloktijden zijn een aanname van mij, ze stonden niet in de opzet. Pas
@@ -204,7 +204,10 @@ privacy gaat.
 7. **Back-up van `data/challenge.db`** regelen; daar zitten de leads in.
    Dagelijkse kopie naar een andere locatie is ruim genoeg (laag schrijfvolume,
    maar de leads zijn onvervangbaar). Bewaar circa 30 dagen aan dagelijkse back-ups.
-8. **Waar gaan de leads naartoe?** Nu staan ze alleen in de database. Wil je een
+8. **Ranglijst leegmaken.** De testinzendingen van de feedbackronde staan nog in de
+   database. Vlak voor livegang: `npm run reset inzendingen`. Dat wist ook de
+   IP-blokkades, dus daarna mag iedereen weer inzenden.
+9. **Waar gaan de leads naartoe?** Nu staan ze alleen in de database. Wil je een
    mail naar recruitment of een koppeling met jullie ATS, dan is dat een aparte
    stap.
 

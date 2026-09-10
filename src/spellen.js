@@ -55,7 +55,7 @@ export const levels = [
     maxSeconden: 45,
     titel: 'Welke component hoort hierbij?',
     situatie:
-      'Een motor moet automatisch uitschakelen wanneer een beveiligingshek wordt geopend.',
+      'De motor moet bij brand aangestuurd worden omdat er voor toegang het toegangshek geopend moet worden.',
     vraag: 'Welke component heb je hiervoor nodig?',
     tekening: 'hek-motor',
     opties: [
@@ -67,7 +67,7 @@ export const levels = [
     juist: 'relais',
     uitlegGoed:
       'Juist. Een relais wordt vaak gebruikt om een schakeling te sturen of te onderbreken.',
-    uitlegFout: 'Nog niet. Zoek het onderdeel dat een schakeling kan onderbreken.',
+    uitlegFout: 'Nog niet. Zoek het onderdeel dat een schakeling kan aansturen.',
     motivatie: 'Je technische kennis brengt je verder dan gemiddeld.',
     volgendeKnop: 'Naar level 3',
   },
@@ -79,7 +79,7 @@ export const levels = [
     actief: true,
     type: 'klik',
     maxSeconden: 60,
-    titel: 'De schakelkast challenge',
+    titel: 'De schakelkast',
     situatie: 'De installatie werkt niet.',
     vraag: 'Welke component controleer je als eerste? Klik het aan in de kast.',
     tekening: 'schakelkast',

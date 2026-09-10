@@ -78,8 +78,8 @@ import { normaliseerTelefoon } from './telefoon.js';
         <line x1="356" y1="114" x2="356" y2="152" stroke="${INK}" stroke-width="2.5"/>
         <line x1="356" y1="152" x2="230" y2="152" stroke="${INK}" stroke-width="2.5"/>
         <circle cx="230" cy="152" r="3" fill="${INK}"/>
-        <line x1="230" y1="152" x2="204" y2="138" stroke="${INK}" stroke-width="2.5"/>
-        <circle cx="200" cy="136" r="3" fill="${INK}"/>
+        <line x1="230" y1="152" x2="200" y2="152" stroke="${INK}" stroke-width="2.5"/>
+        <circle cx="200" cy="152" r="3" fill="${INK}"/>
         <line x1="200" y1="152" x2="59" y2="152" stroke="${INK}" stroke-width="2.5"/>
         <line x1="59" y1="152" x2="59" y2="104" stroke="${INK}" stroke-width="2.5"/>
         <text x="215" y="172" font-size="14" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
@@ -88,23 +88,23 @@ import { normaliseerTelefoon } from './telefoon.js';
     /* ---------- Level 2: hek en motor ---------- */
     'hek-motor': `
       <svg viewBox="0 0 460 160" role="img"
-           aria-label="Een motor en een beveiligingshek, met daartussen een onbekend onderdeel">
+           aria-label="Een toegangshek en een motor, met daarachter een onbekend onderdeel">
         <rect x="24" y="42" width="96" height="76" rx="4" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
         <line x1="40" y1="42" x2="40" y2="118" stroke="${INK}" stroke-width="1.6"/>
         <line x1="60" y1="42" x2="60" y2="118" stroke="${INK}" stroke-width="1.6"/>
         <line x1="80" y1="42" x2="80" y2="118" stroke="${INK}" stroke-width="1.6"/>
         <line x1="100" y1="42" x2="100" y2="118" stroke="${INK}" stroke-width="1.6"/>
-        <text x="72" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">beveiligingshek</text>
+        <text x="72" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">toegangshek</text>
 
-        <line x1="120" y1="80" x2="188" y2="80" stroke="${INK}" stroke-width="2.5"/>
-        <rect x="188" y="60" width="76" height="40" rx="4" fill="#fff" stroke="${BLAUW}"
+        <line x1="120" y1="80" x2="196" y2="80" stroke="${INK}" stroke-width="2.5"/>
+        <circle cx="226" cy="80" r="30" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+        <text x="226" y="86" font-size="16" text-anchor="middle" fill="${INK}">M</text>
+        <text x="226" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">motor</text>
+        <line x1="256" y1="80" x2="330" y2="80" stroke="${INK}" stroke-width="2.5"/>
+
+        <rect x="330" y="60" width="96" height="40" rx="4" fill="#fff" stroke="${BLAUW}"
               stroke-width="2.5" stroke-dasharray="6 5"/>
-        <text x="226" y="85" font-size="16" text-anchor="middle" fill="${BLAUW}">?</text>
-        <line x1="264" y1="80" x2="330" y2="80" stroke="${INK}" stroke-width="2.5"/>
-
-        <circle cx="366" cy="80" r="30" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
-        <text x="366" y="86" font-size="16" text-anchor="middle" fill="${INK}">M</text>
-        <text x="366" y="138" font-size="14" text-anchor="middle" fill="${GRIJS}">motor</text>
+        <text x="378" y="85" font-size="16" text-anchor="middle" fill="${BLAUW}">?</text>
       </svg>`,
 
     /* ---------- Level 3: schakelkast ---------- */
@@ -133,10 +133,11 @@ import { normaliseerTelefoon } from './telefoon.js';
            aria-label="draad tussen relais en motor">
           <rect class="raak" x="306" y="36" width="86" height="68"/>
           <rect class="vlak" x="310" y="40" width="78" height="60" rx="4" fill="none" stroke="none"/>
-          <line x1="312" y1="70" x2="340" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <line x1="360" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <line x1="340" y1="70" x2="348" y2="58" stroke="${INK}" stroke-width="2.5"/>
-          <circle cx="349" cy="57" r="3" fill="${INK}"/>
+          <line x1="312" y1="70" x2="334" y2="70" stroke="${INK}" stroke-width="2.5"/>
+          <line x1="334" y1="70" x2="352" y2="46" stroke="${INK}" stroke-width="2.5"/>
+          <circle cx="353" cy="45" r="4" fill="${INK}"/>
+          <circle cx="368" cy="70" r="4" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+          <line x1="372" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
           <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">draad</text>
         </g>
 
@@ -448,6 +449,29 @@ import { normaliseerTelefoon } from './telefoon.js';
     }
   });
 
+  /* Podiumplek: grote medaille in beeld die uitfadet, met confetti. Puur decoratief,
+     dus overgeslagen bij prefers-reduced-motion. Ruimt zichzelf op. */
+  function vierMedaille(plek) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const kleuren = ['#E52A21', '#E8B923', '#FFFFFF', '#7FD1E8', '#23773A'];
+    const el = document.createElement('div');
+    el.className = 'viering';
+    el.setAttribute('aria-hidden', 'true');
+    el.innerHTML =
+      `<span class="medaille groot m${plek}">${plek}</span>` +
+      Array.from({ length: 70 }, (_, i) => {
+        const stijl =
+          `left:${Math.random() * 100}%;` +
+          `background:${kleuren[i % kleuren.length]};` +
+          `animation-delay:${Math.random() * 0.8}s;` +
+          `animation-duration:${2 + Math.random() * 1.5}s;` +
+          `transform:rotate(${Math.random() * 360}deg)`;
+        return `<i class="confetti" style="${stijl}"></i>`;
+      }).join('');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+
   /* ============================================================
      Bedanken, ranglijst en aftellen naar de vacatures
      ============================================================ */
@@ -464,6 +488,8 @@ import { normaliseerTelefoon } from './telefoon.js';
         : ''
       : `<div class="callout let-op"><span class="teken">Let op</span>${r.bericht || ''}</div>`;
 
+    if (opgeslagen && r.eigenPositie >= 1 && r.eigenPositie <= 3) vierMedaille(r.eigenPositie);
+
     const rijen = r.leaderboard || [];
     $('bordTabel').innerHTML = rijen.length
       ? `<table class="bord">
@@ -471,7 +497,9 @@ import { normaliseerTelefoon } from './telefoon.js';
            <tbody>${rijen
              .map(
                (x) => `<tr class="${x.ikzelf ? 'ikzelf' : ''}">
-                         <td class="pos">${x.positie}</td>
+                         <td class="pos">${x.positie <= 3
+                           ? `<span class="medaille m${x.positie}" title="${['Goud', 'Zilver', 'Brons'][x.positie - 1]}">${x.positie}</span>`
+                           : x.positie}</td>
                          <td>${ontsnap(x.voornaam)}</td>
                          <td class="tijd">${tijd(x.tijdMs)}</td>
                          <td class="tijd">${x.fouten ?? 0}</td>
