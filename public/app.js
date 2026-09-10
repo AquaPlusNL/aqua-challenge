@@ -366,23 +366,23 @@ import { normaliseerTelefoon } from './telefoon.js';
      ============================================================ */
   function naarResultaat(r) {
     const alles = staat.gedaan.every((x) => x.gehaald) && staat.gedaan.length === staat.aantalLevels;
-    $('resultaatPill').textContent = alles ? 'Alle levels gehaald' : 'Challenge afgerond';
+    $('resultaatPill').textContent = alles ? 'Alle levels gehaald' : 'Storix afgerond!';
     $('resultaatTitel').textContent = alles
       ? 'Jij hebt de uitdaging gehaald'
-      : 'Je hebt de challenge afgerond';
+      : 'Nice, je hebt Storix afgerond!';
     $('tijdCijfer').textContent = tijd(r.totaalMs ?? staat.gedaan.reduce((a, x) => a + x.tijdMs, 0));
     $('tijdDetail').textContent = `${staat.gedaan.filter((x) => x.gehaald).length} van ${
       staat.aantalLevels
     } levels goed`;
 
     $('levelTabel').innerHTML =
-      `<thead><tr><th></th><th>Level</th><th style="text-align:right">Fouten</th><th style="text-align:right">Tijd</th></tr></thead><tbody>` +
+      `<thead><tr><th></th><th>Level</th><th style="text-align:right">Pogingen</th><th style="text-align:right">Tijd</th></tr></thead><tbody>` +
       staat.gedaan
         .map(
           (x) => `<tr>
             <td class="uitslag ${x.gehaald ? 'ok' : 'nok'}">${x.gehaald ? '&#10003;' : '&#10007;'}</td>
             <td>Level ${x.nummer}</td>
-            <td class="tijd">${x.fouten}</td>
+            <td class="tijd">${x.fouten + (x.gehaald ? 1 : 0)}</td>
             <td class="tijd">${tijd(x.tijdMs)}</td>
           </tr>`,
         )
@@ -478,8 +478,8 @@ import { normaliseerTelefoon } from './telefoon.js';
   function tekenBedank(r) {
     const opgeslagen = r.opgeslagen !== false;
     $('bedankSub').textContent = opgeslagen
-      ? 'Leuk dat je hebt meegedaan aan de Aqua+ Challenge. Een collega neemt contact met je op.'
-      : 'Leuk dat je hebt meegedaan aan de Aqua+ Challenge.';
+      ? 'Leuk dat je hebt meegedaan aan Storix. Een collega neemt contact met je op.'
+      : 'Leuk dat je hebt meegedaan aan Storix.';
     $('bedankMelding').innerHTML = opgeslagen
       ? r.eigenPositie
         ? `<div class="callout"><span class="teken">&#10003;</span>Je tijd is

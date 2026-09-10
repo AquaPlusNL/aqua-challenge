@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>De Aqua+ Challenge · Werken bij Aqua+</title>
+<title>Storix · Werken bij Aqua+</title>
 <meta name="description" content="Vier technische uitdagingen. Los ze zo snel mogelijk op en kom op de ranglijst.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="stylesheet" href="aqua-tokens.css">
@@ -56,9 +56,9 @@
 
     <!-- 2. start -->
     <div id="scherm-start" class="verborgen">
-      <h1>De Aqua+ Challenge</h1>
-      <p class="sub">Vier technische uitdagingen. Hoe sneller je ze oplost, hoe hoger je op de
-        ranglijst komt. Reken op een paar minuten.</p>
+      <h1>Storix</h1>
+      <p class="sub">Vier technische uitdagingen. Hoe sneller je ze oplost, hoe hoger je scoort.
+        Kost je een paar minuutjes, zet 'm op!</p>
       <ul class="uitdagingen">
         <li>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -101,20 +101,20 @@
 
     <!-- 3. introductie -->
     <div id="scherm-intro" class="verborgen">
-      <h1>Welkom</h1>
-      <p class="sub">Je gaat vier technische uitdagingen oplossen. Elke uitdaging test een ander
-        onderdeel van jouw elektrotechnisch inzicht.</p>
+      <h1>Welkom! Tijd om te schakelen.</h1>
+      <p class="sub">Zo meteen los je vier technische uitdagingen op. Elke uitdaging test een ander
+        stukje van je technisch inzicht.</p>
       <div class="callout">
         Maak je geen zorgen:
         <ul class="lijst">
           <li>Je hebt geen voorbereiding nodig</li>
-          <li>Je hoeft geen berekeningen te maken</li>
-          <li>Logisch nadenken is voldoende</li>
+          <li>Je hoeft niks te berekenen</li>
+          <li>Logisch nadenken is genoeg, dus ga ervoor.</li>
         </ul>
       </div>
-      <p class="sub">Je tijd loopt per level. Een fout antwoord mag je opnieuw proberen, maar dat
-        kost tijd. Succes.</p>
-      <button class="knop knop-primair" id="introKnop">Speel level 1</button>
+      <p class="sub">Je tijd loopt per level mee. Foutje? Mag je over, kost alleen wat tijd.
+        Laat maar zien wat je kan.</p>
+      <button class="knop knop-primair" id="introKnop">Speel level 1!</button>
     </div>
 
     <!-- 4. level -->
@@ -141,21 +141,21 @@
     <div id="scherm-resultaat" class="verborgen">
       <span class="pill" id="resultaatPill">Resultaat</span>
       <h1 id="resultaatTitel">Jij hebt de uitdaging gehaald</h1>
-      <p class="sub">Niet iedereen haalt alle vier de levels. Wij zijn benieuwd wie jij bent.</p>
+      <p class="sub">Goed bezig. Niet iedereen haalt alle vier de levels, wij zijn benieuwd wie jij bent.</p>
       <div class="scorevlak">
         <span class="cijfer" id="tijdCijfer">0:00</span>
         <span class="label">totale tijd<br><span id="tijdDetail"></span></span>
       </div>
       <table class="bord" id="levelTabel"></table>
-      <button class="knop knop-primair" id="naarFormulierKnop">Verder</button>
+      <button class="knop knop-primair" id="naarFormulierKnop">Toon me de vacatures</button>
     </div>
 
     <!-- 6. formulier -->
     <div id="scherm-formulier" class="verborgen">
       <h1>Wie ben jij?</h1>
-      <p class="sub">Vier velden, klaar. Een collega van Aqua+ neemt contact met je op.</p>
+      <p class="sub">We zijn benieuwd naar jou en jouw kennis. Vul hieronder je gegevens in en een collega van Aqua+ neemt contact met je op.</p>
       <form id="formulier" novalidate>
-        <label for="voornaam">Je naam</label>
+        <label for="voornaam">Naam</label>
         <input id="voornaam" autocomplete="given-name" placeholder="Bijvoorbeeld Sanne" required>
 
         <label for="telefoon">Telefoonnummer</label>
@@ -183,8 +183,6 @@
         <button class="knop knop-primair" id="verstuurKnop" type="submit" style="margin-top:var(--sp-4)">
           Verstuur en bekijk de vacatures
         </button>
-        <p class="mini overslaan" style="margin-top:var(--sp-2)">Met deze knop stuur je je gegevens naar Aqua+.
-          Daarna ga je door naar de vacatures.</p>
       </form>
       <a class="knop knop-secundair" id="overslaanLink" href="/vacatures" style="margin-top:var(--sp-4)">
         Geen gegevens achterlaten, direct naar de vacatures
