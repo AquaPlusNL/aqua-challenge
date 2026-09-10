@@ -124,7 +124,7 @@ import { normaliseerTelefoon } from './telefoon.js';
     storing: `
       <svg viewBox="0 0 460 176" role="img"
            aria-label="Installatie met voeding, zekeringsautomaat, relais en motor, met een losgeraakte draad">
-        <line x1="70" y1="70" x2="390" y2="70" stroke="${INK}" stroke-width="2.5"/>
+        <line x1="70" y1="70" x2="312" y2="70" stroke="${INK}" stroke-width="2.5"/>
         ${blok('voeding', 24, 40, 78, 60, 'voeding')}
         ${blok('automaat', 122, 40, 92, 60, 'automaat')}
         ${blok('relais', 234, 40, 78, 60, 'relais')}
@@ -134,7 +134,6 @@ import { normaliseerTelefoon } from './telefoon.js';
           <rect class="raak" x="306" y="36" width="86" height="68"/>
           <rect class="vlak" x="310" y="40" width="78" height="60" rx="4" fill="none" stroke="none"/>
           <line x1="312" y1="70" x2="328" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <line x1="328" y1="70" x2="366" y2="70" stroke="${GRIJS}" stroke-width="2" stroke-dasharray="3 4"/>
           <line x1="328" y1="70" x2="344" y2="40" stroke="${INK}" stroke-width="2.5"/>
           <circle cx="345" cy="39" r="4" fill="${INK}"/>
           <circle cx="371" cy="70" r="5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
