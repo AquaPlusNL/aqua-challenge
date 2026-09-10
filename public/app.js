@@ -22,7 +22,6 @@ import { normaliseerTelefoon } from './telefoon.js';
   const INK = '#26323D';
   const GRIJS = '#59626B';
   const BLAUW = '#0064AF';
-  const ROOD = '#C0392B';
 
   const staat = {
     sessieId: null,
@@ -134,12 +133,12 @@ import { normaliseerTelefoon } from './telefoon.js';
            aria-label="draad tussen relais en motor">
           <rect class="raak" x="306" y="36" width="86" height="68"/>
           <rect class="vlak" x="310" y="40" width="78" height="60" rx="4" fill="none" stroke="none"/>
-          <line x1="312" y1="70" x2="334" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <line x1="334" y1="70" x2="364" y2="70" stroke="${ROOD}" stroke-width="2" stroke-dasharray="3 4"/>
-          <line x1="334" y1="70" x2="352" y2="46" stroke="${ROOD}" stroke-width="2.5"/>
-          <circle cx="353" cy="45" r="4" fill="${ROOD}"/>
-          <circle cx="368" cy="70" r="4" fill="#fff" stroke="${ROOD}" stroke-width="2.5"/>
-          <line x1="372" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
+          <line x1="312" y1="70" x2="328" y2="70" stroke="${INK}" stroke-width="2.5"/>
+          <line x1="328" y1="70" x2="366" y2="70" stroke="${GRIJS}" stroke-width="2" stroke-dasharray="3 4"/>
+          <line x1="328" y1="70" x2="344" y2="40" stroke="${INK}" stroke-width="2.5"/>
+          <circle cx="345" cy="39" r="4" fill="${INK}"/>
+          <circle cx="371" cy="70" r="5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+          <line x1="376" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
           <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">draad</text>
         </g>
 
