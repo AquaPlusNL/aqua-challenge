@@ -130,8 +130,9 @@ app.post('/api/sessie', (req, res) => {
     aantalLevels: lijst.length,
     vacatureUrl: VACATURE_URL,
     contact: CONTACT,
+    /* Wel melden dat er al is ingezonden, niet met welke tijd: op een gedeeld
+       netwerk (kantoor, school, beursstand) is dat de tijd van iemand anders. */
     alIngezonden: Boolean(eerder),
-    eerdereTijdMs: eerder ? eerder.totaal_ms : null,
   });
 });
 
@@ -287,7 +288,9 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
         'Vanaf dit netwerk is al eerder meegedaan. Je gegevens zijn niet opnieuw opgeslagen.',
       vacatureUrl: VACATURE_URL,
       redirectSeconden: REDIRECT_SECONDEN,
-      ...bordPayload(eerder.id),
+      /* Geen eigen positie of tijd: die horen bij de eerdere inzending, en dat
+         is op een gedeeld netwerk iemand anders. Alleen het publieke bord. */
+      ...bordPayload(null),
     });
   }
 
