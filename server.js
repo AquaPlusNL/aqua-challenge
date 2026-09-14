@@ -17,6 +17,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+// De admin-endpoints kunnen alle inzendingen wissen. Niet starten met een
+// ontbrekend, kort of nog niet vervangen voorbeeldtoken.
+if (ADMIN_TOKEN.length < 32 || ADMIN_TOKEN.startsWith('verander-dit')) {
+  throw new Error(
+    'ADMIN_TOKEN ontbreekt, is korter dan 32 tekens of staat nog op de voorbeeldwaarde. ' +
+      'Zet een lange willekeurige waarde in .env, bijvoorbeeld met:\n' +
+      "  node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+  );
+}
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
@@ -357,13 +366,11 @@ function adminOk(req) {
 }
 
 app.get('/api/admin/statistiek', (req, res) => {
-  if (!ADMIN_TOKEN) return fout(res, 500, 'ADMIN_TOKEN is niet ingesteld op de server.');
   if (!adminOk(req)) return fout(res, 401, 'Ongeldig admin-token.');
   res.json(statistiek(levels().length));
 });
 
 app.post('/api/admin/reset', (req, res) => {
-  if (!ADMIN_TOKEN) return fout(res, 500, 'ADMIN_TOKEN is niet ingesteld op de server.');
   if (!adminOk(req)) return fout(res, 401, 'Ongeldig admin-token.');
   const wat = ['inzendingen', 'sessies', 'alles'].includes(req.body?.wat) ? req.body.wat : 'alles';
   res.json({ gereset: wat, resterend: resetDb(wat) });

@@ -58,11 +58,17 @@ if (!db.prepare(`PRAGMA table_info(inzendingen)`).all().some((k) => k.name === '
    alleen een SHA-256-hash met een geheim zout uit .env. Daarmee
    kun je zien of vanaf dit netwerk al is ingezonden, maar niet
    herleiden welk IP dat was.
+
+   Zonder een goed zout is die hash waardeloos: de hele IPv4-ruimte is
+   in minuten door te rekenen. Daarom starten we niet zonder zout, en
+   ook niet met de voorbeeldwaarde uit .env.example.
    ------------------------------------------------------------ */
 const SALT = process.env.IP_SALT || '';
-if (!SALT) {
-  console.warn(
-    '[let op] IP_SALT is niet gezet. Zet een lange willekeurige waarde in .env voordat je live gaat.',
+if (SALT.length < 32 || SALT.startsWith('verander-dit')) {
+  throw new Error(
+    'IP_SALT ontbreekt, is korter dan 32 tekens of staat nog op de voorbeeldwaarde. ' +
+      'Zet een lange willekeurige waarde in .env, bijvoorbeeld met:\n' +
+      "  node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
   );
 }
 export const hashIp = (ip) =>
