@@ -10,7 +10,7 @@
     "dev": "node --env-file-if-exists=.env --watch server.js",
     "reset": "node --env-file-if-exists=.env scripts/reset.js",
     "stats": "node --env-file-if-exists=.env scripts/stats.js",
-    "test": "node scripts/test-telefoon.js"
+    "test": "node scripts/test-telefoon.js && node scripts/test-api.js"
   },
   "dependencies": {
     "express": "^4.21.2"

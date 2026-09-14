@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # node:sqlite (DatabaseSync) vraagt Node 24, zie engines in package.json.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+
+      # Faalt zodra er een nieuw advies binnenkomt voor een afhankelijkheid.
+      # Dat is de bedoeling: liever een rode build dan een stille kwetsbaarheid.
+      - run: npm audit --omit=dev --audit-level=moderate
