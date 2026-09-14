@@ -39,7 +39,10 @@ db.exec(`
     mbo_diploma  INTEGER NOT NULL,
     totaal_ms    INTEGER NOT NULL,
     fouten       INTEGER NOT NULL DEFAULT 0,
-    aangemaakt   INTEGER NOT NULL
+    aangemaakt   INTEGER NOT NULL,
+    /* Tijdstip waarop de kandidaat akkoord gaf. AVG: zonder dit veld
+       hebben we geen bewijs van toestemming voor de opgeslagen PII. */
+    toestemming_op INTEGER
   );
 
   CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, fouten ASC, aangemaakt ASC);
@@ -47,10 +50,15 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_ses_lvl ON sessies (hoogste_level);
 `);
 
-/* Migratie voor bestaande databases: kolom fouten (som van foute pogingen,
-   tweede sorteersleutel op de ranglijst na de tijd). */
-if (!db.prepare(`PRAGMA table_info(inzendingen)`).all().some((k) => k.name === 'fouten')) {
-  db.exec(`ALTER TABLE inzendingen ADD COLUMN fouten INTEGER NOT NULL DEFAULT 0`);
+/* Migraties voor bestaande databases:
+     fouten          som van foute pogingen, tweede sorteersleutel op de ranglijst
+     toestemming_op  tijdstip van akkoord (AVG) */
+const kolommen = db.prepare(`PRAGMA table_info(inzendingen)`).all().map((k) => k.name);
+for (const [naam, definitie] of [
+  ['fouten', 'INTEGER NOT NULL DEFAULT 0'],
+  ['toestemming_op', 'INTEGER'],
+]) {
+  if (!kolommen.includes(naam)) db.exec(`ALTER TABLE inzendingen ADD COLUMN ${naam} ${definitie}`);
 }
 
 /* ------------------------------------------------------------
@@ -97,9 +105,9 @@ export const q = {
   inzending: db.prepare(`SELECT * FROM inzendingen WHERE id = ?`),
   bewaarInzending: db.prepare(
     `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email,
-                              mbo_diploma, totaal_ms, fouten, aangemaakt)
+                              mbo_diploma, totaal_ms, fouten, aangemaakt, toestemming_op)
      VALUES (@sessie_id, @ip_hash, @voornaam, @telefoon, @email,
-             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt)`,
+             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt, @toestemming_op)`,
   ),
   /* Snelste tijd bovenaan; bij gelijke tijd wint wie de minste fouten maakte. */
   top: db.prepare(

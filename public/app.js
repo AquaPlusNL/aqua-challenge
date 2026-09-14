@@ -440,6 +440,7 @@ import { normaliseerTelefoon } from './telefoon.js';
           telefoon: $('telefoon').value,
           email: $('email').value,
           mboDiploma: staat.mbo,
+          akkoord: $('akkoord').checked,
         },
       });
       tekenBedank(r);

@@ -266,6 +266,11 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
   const email = String(b.email || '').trim();
   const mbo = b.mboDiploma;
 
+  /* AVG: zonder akkoord slaan we niets op. De vinkjes in de browser zijn
+     geen grondslag; de server moet het eisen en het moment vastleggen. */
+  if (b.akkoord !== true) {
+    return fout(res, 400, 'Zonder akkoord kunnen we je gegevens niet bewaren.');
+  }
   if (voornaam.length < 2) return fout(res, 400, 'Vul je voornaam in.');
   if (!telefoon) return fout(res, 400, 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12 34 56 78.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
@@ -297,6 +302,7 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
       totaal_ms: s.totaal_ms,
       fouten: JSON.parse(s.resultaten).reduce((a, r) => a + (r.foutePogingen || 0), 0),
       aangemaakt: Date.now(),
+      toestemming_op: Date.now(),
     }).lastInsertRowid;
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) {
