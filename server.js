@@ -356,13 +356,23 @@ function bordPayload(eigenId) {
 /* ============================================================
    Admin: statistiek en reset
    ============================================================ */
+/* Het admin-token is onbeperkt te raden zolang er niets tegenover staat, en
+   /api/admin/reset wist alle inzendingen. Eén begrenzer voor alle admin-routes,
+   zodat een nieuwe route hem niet per ongeluk kan overslaan. */
+app.use('/api/admin', (req, res, next) => {
+  if (!begrens(`admin:${ipHashVan(req)}`, 10, 60_000)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
+  next();
+});
+
+// Beide kanten eerst hashen: dan zijn de buffers altijd even lang, lekt de
+// lengte van het token niet, en gooit timingSafeEqual niet op multibyte invoer.
+const tokenHash = (s) => crypto.createHash('sha256').update(String(s)).digest();
+const ADMIN_HASH = tokenHash(ADMIN_TOKEN);
+
 function adminOk(req) {
-  if (!ADMIN_TOKEN) return false;
-  const geleverd = req.get('x-admin-token') || '';
-  return (
-    geleverd.length === ADMIN_TOKEN.length &&
-    crypto.timingSafeEqual(Buffer.from(geleverd), Buffer.from(ADMIN_TOKEN))
-  );
+  return crypto.timingSafeEqual(tokenHash(req.get('x-admin-token') || ''), ADMIN_HASH);
 }
 
 app.get('/api/admin/statistiek', (req, res) => {
