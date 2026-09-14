@@ -42,6 +42,12 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
+  // Alleen sturen als de verbinding al beveiligd is; op http://localhost
+  // negeert de browser de header toch en zet hij alleen maar aan tot verwarring.
+  // req.secure kijkt naar X-Forwarded-Proto, dus TRUST_PROXY moet goed staan.
+  if (req.secure) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
