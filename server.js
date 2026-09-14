@@ -29,6 +29,7 @@ if (ADMIN_TOKEN.length < 32 || ADMIN_TOKEN.startsWith('verander-dit')) {
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
+const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 365);
 const CONTACT = { email: process.env.CONTACT_EMAIL || '' };
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
@@ -405,14 +406,21 @@ app.use((err, req, res, next) => {
   res.status(500).json({ fout: 'Er ging iets mis op de server.' });
 });
 
-/* ------------ periodieke opruiming van oude sessies ------------ */
-function ruimOudeSessiesOp() {
-  const grens = Date.now() - SESSIE_BEWAARDAGEN * 86_400_000;
-  const n = q.verwijderOudeSessies.run(grens).changes;
-  if (n) console.log(`[opruiming] ${n} oude sessies verwijderd`);
+/* ------------ periodieke opruiming ------------
+   Sessies zijn voortgangstracking. Inzendingen bevatten persoonsgegevens en
+   vallen onder de AVG-bewaartermijn: weg als de termijn verstreken is. Let op:
+   daarmee verdwijnt die deelnemer ook van de ranglijst, en vervalt de
+   IP-blokkade, want die zit in dezelfde tabel. */
+function ruimOp() {
+  const nu = Date.now();
+  const sessies = q.verwijderOudeSessies.run(nu - SESSIE_BEWAARDAGEN * 86_400_000).changes;
+  if (sessies) console.log(`[opruiming] ${sessies} oude sessies verwijderd`);
+
+  const inzendingen = q.verwijderOudeInzendingen.run(nu - INZENDING_BEWAARDAGEN * 86_400_000).changes;
+  if (inzendingen) console.log(`[opruiming] ${inzendingen} verlopen inzendingen verwijderd`);
 }
-ruimOudeSessiesOp();
-setInterval(ruimOudeSessiesOp, 6 * 60 * 60 * 1000).unref();
+ruimOp();
+setInterval(ruimOp, 6 * 60 * 60 * 1000).unref();
 
 app.listen(PORT, () => {
   console.log(`Aqua+ Challenge draait op http://localhost:${PORT}`);

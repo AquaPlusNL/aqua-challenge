@@ -122,6 +122,8 @@ export const q = {
   ),
   aantalInzendingen: db.prepare(`SELECT COUNT(*) AS n FROM inzendingen`),
   verwijderOudeSessies: db.prepare(`DELETE FROM sessies WHERE laatst_actief < ?`),
+  /* AVG-bewaartermijn: sollicitatiegegevens gaan er na afloop uit. */
+  verwijderOudeInzendingen: db.prepare(`DELETE FROM inzendingen WHERE aangemaakt < ?`),
 };
 
 /* ------------------------------------------------------------
