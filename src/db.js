@@ -46,10 +46,18 @@ db.exec(`
        kunnen we niet laten zien waarmee iemand akkoord ging. */
     toestemming_op     INTEGER,
     toestemming_versie TEXT,
+    /* De zin waarmee de kandidaat akkoord ging, letterlijk, en waar dat
+       gebeurde. Een versienummer alleen is niet genoeg: verandert de tekst
+       zonder dat iemand het nummer ophoogt, dan wijst de rij naar de
+       verkeerde zin. */
+    toestemming_tekst  TEXT,
+    toestemming_bron   TEXT,
     /* Aparte, vrijwillige toestemming voor de talentpool (Jobylon).
        Bepaalt de bewaartermijn: zonder is het vier weken, met twaalf
-       maanden. Zie de privacyverklaring, hoofdstuk 7. */
-    talentpool         INTEGER NOT NULL DEFAULT 0
+       maanden. Zie de privacyverklaring, hoofdstuk 7. De tekst blijft leeg
+       als er geen toestemming is; dat zegt dan ook echt "niet gegeven". */
+    talentpool         INTEGER NOT NULL DEFAULT 0,
+    talentpool_tekst   TEXT
   );
 
   CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, fouten ASC, aangemaakt ASC);
@@ -61,13 +69,19 @@ db.exec(`
      fouten              som van foute pogingen, tweede sorteersleutel op de ranglijst
      toestemming_op      tijdstip van akkoord (AVG)
      toestemming_versie  welke privacyverklaring op dat moment gold
-     talentpool          aparte toestemming voor bewaring in Jobylon */
+     toestemming_tekst   de zin waarmee akkoord is gegaan, letterlijk
+     toestemming_bron    waar dat gebeurde
+     talentpool          aparte toestemming voor bewaring in Jobylon
+     talentpool_tekst    de zin van die aparte toestemming */
 const kolommen = db.prepare(`PRAGMA table_info(inzendingen)`).all().map((k) => k.name);
 for (const [naam, definitie] of [
   ['fouten', 'INTEGER NOT NULL DEFAULT 0'],
   ['toestemming_op', 'INTEGER'],
   ['toestemming_versie', 'TEXT'],
+  ['toestemming_tekst', 'TEXT'],
+  ['toestemming_bron', 'TEXT'],
   ['talentpool', 'INTEGER NOT NULL DEFAULT 0'],
+  ['talentpool_tekst', 'TEXT'],
 ]) {
   if (!kolommen.includes(naam)) db.exec(`ALTER TABLE inzendingen ADD COLUMN ${naam} ${definitie}`);
 }
@@ -117,10 +131,12 @@ export const q = {
   bewaarInzending: db.prepare(
     `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email,
                               mbo_diploma, totaal_ms, fouten, aangemaakt,
-                              toestemming_op, toestemming_versie, talentpool)
+                              toestemming_op, toestemming_versie, toestemming_tekst,
+                              toestemming_bron, talentpool, talentpool_tekst)
      VALUES (@sessie_id, @ip_hash, @voornaam, @telefoon, @email,
              @mbo_diploma, @totaal_ms, @fouten, @aangemaakt,
-             @toestemming_op, @toestemming_versie, @talentpool)`,
+             @toestemming_op, @toestemming_versie, @toestemming_tekst,
+             @toestemming_bron, @talentpool, @talentpool_tekst)`,
   ),
   /* Snelste tijd bovenaan; bij gelijke tijd wint wie de minste fouten maakte. */
   top: db.prepare(

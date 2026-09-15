@@ -36,6 +36,23 @@ const TALENTPOOL_BEWAARDAGEN = Number(process.env.TALENTPOOL_BEWAARDAGEN || 365)
 // Versie van de privacyverklaring waarmee de kandidaat akkoord gaat. Houd dit
 // gelijk aan de versiedatum bovenaan public/privacyverklaring.html.
 const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-09-15';
+
+/* De toestemmingsteksten staan hier, en nergens anders. De pagina haalt ze op
+   en toont ze; bij een inzending leggen we exact deze zinnen vast. Daarmee kan
+   er geen licht zitten tussen wat de kandidaat las en wat wij bewaren, ook niet
+   als de tekst later verandert. Wat de browser terugstuurt gebruiken we hier
+   bewust niet: een client mag niet bepalen waarmee hij akkoord ging. */
+const TOESTEMMING = {
+  versie: PRIVACY_VERSIE,
+  bron: 'inzendformulier challenge',
+  akkoord:
+    'Aqua+ mag mijn gegevens gebruiken om contact met me op te nemen over werken bij Aqua+. ' +
+    'Op de ranglijst komen alleen mijn voornaam en mijn tijd te staan.',
+  talentpool:
+    'Ja, Aqua+ mag mijn gegevens maximaal 12 maanden na het laatste relevante contactmoment ' +
+    'bewaren in het recruitmentsysteem Jobylon en mij benaderen voor passende toekomstige ' +
+    'vacatures. Ik kan mijn toestemming altijd intrekken via werkenbij@aqua.nl.',
+};
 const CONTACT = { email: process.env.CONTACT_EMAIL || '' };
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
@@ -145,6 +162,7 @@ app.post('/api/sessie', (req, res) => {
     /* Wel melden dat er al is ingezonden, niet met welke tijd: op een gedeeld
        netwerk (kantoor, school, beursstand) is dat de tijd van iemand anders. */
     alIngezonden: Boolean(eerder),
+    toestemming: TOESTEMMING,
   });
 });
 
@@ -323,7 +341,13 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
       aangemaakt: Date.now(),
       toestemming_op: Date.now(),
       toestemming_versie: PRIVACY_VERSIE,
+      /* De teksten komen uit TOESTEMMING, niet uit het verzoek: anders bepaalt
+         de kandidaat zelf waarmee hij akkoord ging. Geen talentpool betekent
+         geen talentpooltekst, zodat een lege kolom ook echt "niet gegeven" zegt. */
+      toestemming_tekst: TOESTEMMING.akkoord,
+      toestemming_bron: TOESTEMMING.bron,
       talentpool: talentpool ? 1 : 0,
+      talentpool_tekst: talentpool ? TOESTEMMING.talentpool : null,
     }).lastInsertRowid;
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) {

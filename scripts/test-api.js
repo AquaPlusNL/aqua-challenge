@@ -173,13 +173,24 @@ try {
   check('met akkoord opgeslagen, talentpool leeg', metCode === 200 && met.opgeslagen === true);
 
   const leesDb = new DatabaseSync(dbPad);
-  const rij = leesDb
-    .prepare('SELECT talentpool, toestemming_op, toestemming_versie FROM inzendingen')
-    .get();
+  const rij = leesDb.prepare('SELECT * FROM inzendingen').get();
   leesDb.close();
   check('talentpool staat uit als het vinkje leeg bleef', rij.talentpool === 0);
   check('moment van toestemming vastgelegd', rij.toestemming_op > 0);
   check('versie van de privacyverklaring vastgelegd', rij.toestemming_versie === '2026-09-15');
+  check('bron van de toestemming vastgelegd', rij.toestemming_bron === 'inzendformulier challenge');
+  check(
+    'de vastgelegde tekst is die van de server',
+    rij.toestemming_tekst === s1.toestemming.akkoord && rij.toestemming_tekst.length > 40,
+  );
+  check('geen talentpooltekst zonder talentpool', rij.talentpool_tekst === null);
+
+  /* De kandidaat mag niet zelf bepalen waarmee hij akkoord ging. */
+  const [, s1b] = await api('/api/sessie', { method: 'POST' });
+  check(
+    'server stuurt de toestemmingsteksten mee',
+    typeof s1b.toestemming?.akkoord === 'string' && typeof s1b.toestemming?.talentpool === 'string',
+  );
 
   const [, bord] = await api('/api/leaderboard');
   check('op de ranglijst', bord.leaderboard.some((r) => r.voornaam === 'Testpiet'));
@@ -215,9 +226,42 @@ try {
   check('inzending met talentpool opgeslagen', poolCode === 200 && pool.opgeslagen === true);
 
   const poolDb = new DatabaseSync(dbPad);
-  const poolRij = poolDb.prepare('SELECT voornaam, talentpool FROM inzendingen').get();
+  const poolRij = poolDb.prepare('SELECT * FROM inzendingen').get();
   poolDb.close();
   check('talentpool vastgelegd als het vinkje aan stond', poolRij.talentpool === 1);
+  check(
+    'talentpooltekst vastgelegd, en die van de server',
+    poolRij.talentpool_tekst === s3.toestemming.talentpool &&
+      /12 maanden/.test(poolRij.talentpool_tekst),
+  );
+
+  /* Een verzonnen tekst uit de browser mag niet in de database komen. */
+  await api('/api/admin/reset', {
+    method: 'POST',
+    headers: { 'x-admin-token': ADMIN_TOKEN },
+    body: { wat: 'inzendingen' },
+  });
+  const [, s4] = await api('/api/sessie', { method: 'POST' });
+  await speelUit(s4.sessieId);
+  await api(`/api/sessie/${s4.sessieId}/inzending`, {
+    method: 'POST',
+    body: {
+      ...gegevens,
+      voornaam: 'Sluwepiet',
+      akkoord: true,
+      talentpool: true,
+      toestemming_tekst: 'ik ga akkoord met werkelijk alles',
+      talentpool_tekst: 'bewaar mijn gegevens voor altijd',
+    },
+  });
+  const sluwDb = new DatabaseSync(dbPad);
+  const sluwRij = sluwDb.prepare('SELECT * FROM inzendingen').get();
+  sluwDb.close();
+  check(
+    'tekst uit het verzoek wordt genegeerd',
+    sluwRij.toestemming_tekst === s4.toestemming.akkoord &&
+      sluwRij.talentpool_tekst === s4.toestemming.talentpool,
+  );
 
   /* ---------- admin-ingang ---------- */
   const [foutToken] = await api('/api/admin/statistiek', { headers: { 'x-admin-token': 'fout' } });
