@@ -7,8 +7,7 @@
    toestemming, de admin-ingang, en wat we over eerdere deelnemers
    prijsgeven.
 
-   Geen testframework. Een mislukte check zet de exitcode op 1,
-   dat is genoeg voor CI.
+   Geen testframework. Een mislukte check zet de exitcode op 1.
    ============================================================ */
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -17,6 +16,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DatabaseSync } from 'node:sqlite';
 import { actieveLevels } from '../src/spellen.js';
 
 const wortel = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -51,32 +51,38 @@ async function api(pad, opties = {}) {
   return [r.status, await r.json().catch(() => ({})), r.headers];
 }
 
-const server = spawn(process.execPath, [path.join(wortel, 'server.js')], {
-  cwd: wortel,
-  stdio: ['ignore', 'pipe', 'pipe'],
-  env: {
-    ...process.env,
-    PORT: String(poort),
-    DB_PATH: path.join(werkmap, 'test.db'),
-    IP_SALT: crypto.randomBytes(32).toString('hex'),
-    ADMIN_TOKEN,
-  },
-});
+const dbPad = path.join(werkmap, 'test.db');
+const IP_SALT = crypto.randomBytes(32).toString('hex');
+let server;
 let serverUitvoer = '';
-server.stdout.on('data', (d) => (serverUitvoer += d));
-server.stderr.on('data', (d) => (serverUitvoer += d));
 
-/* Eerst wachten tot de server echt weg is: op Windows houdt hij het
-   databasebestand vast en mislukt het verwijderen anders. Lukt het dan nog
-   niet, dan laten we het erbij; het staat in de tijdelijke map. */
-async function opruimen() {
-  if (server.exitCode === null) {
+function startServer() {
+  serverUitvoer = '';
+  server = spawn(process.execPath, [path.join(wortel, 'server.js')], {
+    cwd: wortel,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, PORT: String(poort), DB_PATH: dbPad, IP_SALT, ADMIN_TOKEN },
+  });
+  server.stdout.on('data', (d) => (serverUitvoer += d));
+  server.stderr.on('data', (d) => (serverUitvoer += d));
+}
+
+/* Wachten tot de server echt weg is: op Windows houdt hij het databasebestand
+   vast, en dan mislukt zowel het uitlezen als het verwijderen. */
+async function stopServer() {
+  if (server && server.exitCode === null) {
     server.kill();
     await Promise.race([
       new Promise((klaar) => server.once('exit', klaar)),
       new Promise((klaar) => setTimeout(klaar, 2000)),
     ]);
   }
+}
+
+/* Lukt het verwijderen niet, dan laten we het erbij; het staat in de
+   tijdelijke map. */
+async function opruimen() {
+  await stopServer();
   try {
     fs.rmSync(werkmap, { recursive: true, force: true });
   } catch {
@@ -119,6 +125,7 @@ async function speelUit(sessieId) {
 }
 
 try {
+  startServer();
   await wachtOpServer();
 
   /* ---------- de gewone route ---------- */
@@ -157,11 +164,22 @@ try {
   });
   check('akkoord moet echt true zijn, niet waarheidsachtig', stringCode === 400);
 
+  /* Zonder talentpool-vinkje: gewoon opslaan, alleen met de korte bewaartermijn.
+     De talentpool mag geen voorwaarde zijn om mee te doen. */
   const [metCode, met] = await api(`/api/sessie/${s1.sessieId}/inzending`, {
     method: 'POST',
     body: { ...gegevens, akkoord: true },
   });
-  check('met akkoord opgeslagen', metCode === 200 && met.opgeslagen === true);
+  check('met akkoord opgeslagen, talentpool leeg', metCode === 200 && met.opgeslagen === true);
+
+  const leesDb = new DatabaseSync(dbPad);
+  const rij = leesDb
+    .prepare('SELECT talentpool, toestemming_op, toestemming_versie FROM inzendingen')
+    .get();
+  leesDb.close();
+  check('talentpool staat uit als het vinkje leeg bleef', rij.talentpool === 0);
+  check('moment van toestemming vastgelegd', rij.toestemming_op > 0);
+  check('versie van de privacyverklaring vastgelegd', rij.toestemming_versie === '2026-09-15');
 
   const [, bord] = await api('/api/leaderboard');
   check('op de ranglijst', bord.leaderboard.some((r) => r.voornaam === 'Testpiet'));
@@ -180,6 +198,26 @@ try {
   check('geen positie van de ander', tweede.eigenPositie === null);
   check('geen tijd van de ander', tweede.eigenTijdMs === null);
   check('niemand als "ikzelf" gemarkeerd', tweede.leaderboard.every((r) => r.ikzelf === false));
+
+  /* ---------- talentpool wel aangevinkt ----------
+     De IP-blokkade zit in de inzendingentabel, dus die eerst legen. */
+  await api('/api/admin/reset', {
+    method: 'POST',
+    headers: { 'x-admin-token': ADMIN_TOKEN },
+    body: { wat: 'inzendingen' },
+  });
+  const [, s3] = await api('/api/sessie', { method: 'POST' });
+  await speelUit(s3.sessieId);
+  const [poolCode, pool] = await api(`/api/sessie/${s3.sessieId}/inzending`, {
+    method: 'POST',
+    body: { ...gegevens, voornaam: 'Talentpiet', akkoord: true, talentpool: true },
+  });
+  check('inzending met talentpool opgeslagen', poolCode === 200 && pool.opgeslagen === true);
+
+  const poolDb = new DatabaseSync(dbPad);
+  const poolRij = poolDb.prepare('SELECT voornaam, talentpool FROM inzendingen').get();
+  poolDb.close();
+  check('talentpool vastgelegd als het vinkje aan stond', poolRij.talentpool === 1);
 
   /* ---------- admin-ingang ---------- */
   const [foutToken] = await api('/api/admin/statistiek', { headers: { 'x-admin-token': 'fout' } });
@@ -200,6 +238,35 @@ try {
   const [, , headers] = await api('/api/gezond');
   check('CSP staat aan', (headers.get('content-security-policy') || '').includes("script-src 'self'"));
   check('geen HSTS over gewone http', headers.get('strict-transport-security') === null);
+
+  /* ---------- twee bewaartermijnen ----------
+     Vier weken zonder talentpool-toestemming, twaalf maanden met. We zetten
+     drie inzendingen van 60 dagen oud klaar en starten de server opnieuw: die
+     ruimt op bij het opstarten. Alleen de rij zonder toestemming hoort weg. */
+  await stopServer();
+  const schrijfDb = new DatabaseSync(dbPad);
+  schrijfDb.exec('DELETE FROM inzendingen');
+  const zestigDagenTerug = Date.now() - 60 * 86_400_000;
+  const zet = schrijfDb.prepare(
+    `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email, mbo_diploma,
+                              totaal_ms, fouten, aangemaakt, toestemming_op, talentpool)
+     VALUES ('s', ?, ?, '+31612345678', 'x@example.nl', 1, 1000, 0, ?, ?, ?)`,
+  );
+  zet.run('hash-kort', 'Kort', zestigDagenTerug, zestigDagenTerug, 0);
+  zet.run('hash-lang', 'Lang', zestigDagenTerug, zestigDagenTerug, 1);
+  zet.run('hash-vers', 'Vers', Date.now(), Date.now(), 0);
+  schrijfDb.close();
+
+  startServer();
+  await wachtOpServer();
+  await stopServer();
+
+  const naDb = new DatabaseSync(dbPad);
+  const over = naDb.prepare('SELECT voornaam FROM inzendingen ORDER BY voornaam').all().map((r) => r.voornaam);
+  naDb.close();
+  check('60 dagen oud zonder talentpool is opgeruimd', !over.includes('Kort'));
+  check('60 dagen oud met talentpool blijft staan', over.includes('Lang'));
+  check('verse inzending blijft staan', over.includes('Vers'));
 } finally {
   await opruimen();
 }
