@@ -139,3 +139,9 @@ export const levelPubliek = (level) => ({
 
 /* Marge voor netwerkvertraging bij het narekenen van de klok. */
 export const GRACE_MS = 1500;
+
+/* Ondergrens per level. Lezen, begrijpen en klikken kost een mens altijd meer
+   dan dit; alleen reactietijd is al zo'n 250 ms. Wie sneller antwoordt zit niet
+   achter een muis. De score is de tijd, dus zonder deze grens zet een script
+   een tijd neer die niemand ooit haalt en is de ranglijst waardeloos. */
+export const MINIMUM_MS = 400;

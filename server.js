@@ -10,12 +10,17 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, q, hashIp, resetDb, statistiek } from './src/db.js';
-import { actieveLevels, levelPubliek, GRACE_MS } from './src/spellen.js';
+import { actieveLevels, levelPubliek, GRACE_MS, MINIMUM_MS } from './src/spellen.js';
 import { normaliseerTelefoon } from './src/telefoon.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+// Standaard alleen bereikbaar vanaf de machine zelf. Achter een reverse proxy is
+// dat wat je wilt: de app hoort niet naast de proxy om benaderbaar te zijn, want
+// dan vervalt zowel TLS als het echte client-IP. In een container, waar het
+// verkeer van buiten de netwerknamespace komt, zet je HOST=0.0.0.0.
+const HOST = process.env.HOST || '127.0.0.1';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 // De admin-endpoints kunnen alle inzendingen wissen. Niet starten met een
 // ontbrekend, kort of nog niet vervangen voorbeeldtoken.
@@ -112,6 +117,7 @@ app.get('/dev-reload.js', (req, res) => {
 });
 
 /* ---------- simpele snelheidsbegrenzer per IP-hash ---------- */
+const VENSTER_MS = 60_000;
 const tellers = new Map();
 function begrens(sleutel, max, vensterMs) {
   const nu = Date.now();
@@ -120,7 +126,16 @@ function begrens(sleutel, max, vensterMs) {
   tellers.set(sleutel, rij);
   return rij.length <= max;
 }
-setInterval(() => tellers.clear(), 10 * 60 * 1000).unref();
+
+/* Alleen sleutels weggooien die buiten het venster vallen. Eerder werd de hele
+   map geleegd, en dan kon je met een beetje timing rond die schoonmaak het
+   dubbele van je limiet halen. */
+setInterval(() => {
+  const grens = Date.now() - VENSTER_MS;
+  for (const [sleutel, rij] of tellers) {
+    if (rij.every((t) => t < grens)) tellers.delete(sleutel);
+  }
+}, 10 * 60 * 1000).unref();
 
 const ipHashVan = (req) => hashIp(req.ip);
 const levels = () => actieveLevels();
@@ -207,6 +222,13 @@ app.get('/api/sessie/:id/level', (req, res) => {
    Klok af -> level niet gehaald, volle leveltijd gerekend, door.
    ============================================================ */
 app.post('/api/sessie/:id/antwoord', (req, res) => {
+  /* Dit endpoint had als enige in het spel geen begrenzing. Zestig antwoorden
+     per minuut is ruim voor vier levels met hervatten na een fout, en te weinig
+     voor een script dat de ranglijst wil vullen. */
+  if (!begrens(`antwoord:${ipHashVan(req)}`, 60, VENSTER_MS)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
+
   const s = q.sessie.get(req.params.id);
   if (!s) return fout(res, 404, 'Onbekende sessie.');
   if (s.afgerond) return fout(res, 409, 'Deze sessie is al afgerond.');
@@ -219,6 +241,12 @@ app.post('/api/sessie/:id/antwoord', (req, res) => {
   const keuze = typeof req.body?.keuze === 'string' ? req.body.keuze : null;
   const nu = Date.now();
   const verstrekenMs = nu - s.level_gestart_op;
+
+  /* Te snel om gelezen te kunnen zijn. Het level blijft open en de klok loopt
+     door, dus een mens die dit ooit ziet klikt gewoon nog een keer. */
+  if (verstrekenMs < MINIMUM_MS) {
+    return fout(res, 400, 'Dat ging wel erg snel. Lees de vraag en probeer het opnieuw.');
+  }
   const maxMs = level.maxSeconden * 1000;
   const tijdOm = keuze === null || verstrekenMs > maxMs + GRACE_MS;
   const goed = !tijdOm && keuze === level.juist;
@@ -282,6 +310,12 @@ app.post('/api/sessie/:id/antwoord', (req, res) => {
    Contactformulier. Per IP-hash maximaal een inzending.
    ============================================================ */
 app.post('/api/sessie/:id/inzending', (req, res) => {
+  /* We vergelijken de ip_hash van de sessie bewust niet met die van de inzender.
+     Dat is een keuze, geen vergissing: wie tijdens het spelen van wifi naar 4G
+     overstapt zou anders zijn eigen inzending niet meer kwijt kunnen. Het sessie-id
+     is een willekeurige UUID, dus je moet hem van de speler zelf krijgen om er
+     iets mee te kunnen; wat je er dan mee wint is andermans tijd op de ranglijst,
+     onder je eigen naam. Wil je dat dichtzetten, vergelijk dan s.ip_hash. */
   const s = q.sessie.get(req.params.id);
   if (!s) return fout(res, 404, 'Onbekende sessie.');
   if (!s.afgerond) return fout(res, 409, 'De challenge is nog niet afgerond.');
@@ -293,9 +327,12 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
 
   const b = req.body || {};
   /* Alleen het eerste woord: op de ranglijst komt uitsluitend de voornaam. */
-  const voornaam = String(b.voornaam || '').trim().split(/\s+/)[0];
+  /* Afkappen, niet weigeren: 40 tekens is ruim voor een voornaam, en wie meer
+     instuurt is geen kandidaat. Zonder grens komt een naam van kilobytes lang
+     ongeschonden op de ranglijst van iedere bezoeker terecht. */
+  const voornaam = String(b.voornaam || '').trim().split(/\s+/)[0].slice(0, 40);
   const telefoon = normaliseerTelefoon(b.telefoon);
-  const email = String(b.email || '').trim();
+  const email = String(b.email || '').trim().slice(0, 254);
   const mbo = b.mboDiploma;
 
   /* AVG: zonder akkoord slaan we niets op. De vinkjes in de browser zijn
@@ -469,7 +506,7 @@ function ruimOp() {
 ruimOp();
 setInterval(ruimOp, 6 * 60 * 60 * 1000).unref();
 
-app.listen(PORT, () => {
-  console.log(`Aqua+ Challenge draait op http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Aqua+ Challenge draait op http://${HOST}:${PORT}`);
   console.log(`Levels: ${levels().length} | redirect na afloop naar: ${VACATURE_URL}`);
 });
