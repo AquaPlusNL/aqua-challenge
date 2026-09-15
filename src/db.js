@@ -40,9 +40,16 @@ db.exec(`
     totaal_ms    INTEGER NOT NULL,
     fouten       INTEGER NOT NULL DEFAULT 0,
     aangemaakt   INTEGER NOT NULL,
-    /* Tijdstip waarop de kandidaat akkoord gaf. AVG: zonder dit veld
-       hebben we geen bewijs van toestemming voor de opgeslagen PII. */
-    toestemming_op INTEGER
+    /* Tijdstip waarop de kandidaat akkoord gaf, en de versie van de
+       privacyverklaring die op dat moment gold. AVG: zonder deze velden
+       hebben we geen bewijs van toestemming voor de opgeslagen PII, en
+       kunnen we niet laten zien waarmee iemand akkoord ging. */
+    toestemming_op     INTEGER,
+    toestemming_versie TEXT,
+    /* Aparte, vrijwillige toestemming voor de talentpool (Jobylon).
+       Bepaalt de bewaartermijn: zonder is het vier weken, met twaalf
+       maanden. Zie de privacyverklaring, hoofdstuk 7. */
+    talentpool         INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, fouten ASC, aangemaakt ASC);
@@ -51,12 +58,16 @@ db.exec(`
 `);
 
 /* Migraties voor bestaande databases:
-     fouten          som van foute pogingen, tweede sorteersleutel op de ranglijst
-     toestemming_op  tijdstip van akkoord (AVG) */
+     fouten              som van foute pogingen, tweede sorteersleutel op de ranglijst
+     toestemming_op      tijdstip van akkoord (AVG)
+     toestemming_versie  welke privacyverklaring op dat moment gold
+     talentpool          aparte toestemming voor bewaring in Jobylon */
 const kolommen = db.prepare(`PRAGMA table_info(inzendingen)`).all().map((k) => k.name);
 for (const [naam, definitie] of [
   ['fouten', 'INTEGER NOT NULL DEFAULT 0'],
   ['toestemming_op', 'INTEGER'],
+  ['toestemming_versie', 'TEXT'],
+  ['talentpool', 'INTEGER NOT NULL DEFAULT 0'],
 ]) {
   if (!kolommen.includes(naam)) db.exec(`ALTER TABLE inzendingen ADD COLUMN ${naam} ${definitie}`);
 }
@@ -105,9 +116,11 @@ export const q = {
   inzending: db.prepare(`SELECT * FROM inzendingen WHERE id = ?`),
   bewaarInzending: db.prepare(
     `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email,
-                              mbo_diploma, totaal_ms, fouten, aangemaakt, toestemming_op)
+                              mbo_diploma, totaal_ms, fouten, aangemaakt,
+                              toestemming_op, toestemming_versie, talentpool)
      VALUES (@sessie_id, @ip_hash, @voornaam, @telefoon, @email,
-             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt, @toestemming_op)`,
+             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt,
+             @toestemming_op, @toestemming_versie, @talentpool)`,
   ),
   /* Snelste tijd bovenaan; bij gelijke tijd wint wie de minste fouten maakte. */
   top: db.prepare(
@@ -122,8 +135,13 @@ export const q = {
   ),
   aantalInzendingen: db.prepare(`SELECT COUNT(*) AS n FROM inzendingen`),
   verwijderOudeSessies: db.prepare(`DELETE FROM sessies WHERE laatst_actief < ?`),
-  /* AVG-bewaartermijn: sollicitatiegegevens gaan er na afloop uit. */
-  verwijderOudeInzendingen: db.prepare(`DELETE FROM inzendingen WHERE aangemaakt < ?`),
+  /* AVG-bewaartermijn, twee termijnen, zie de privacyverklaring hoofdstuk 7:
+     zonder talentpool-toestemming vier weken, met toestemming twaalf maanden. */
+  verwijderOudeInzendingen: db.prepare(
+    `DELETE FROM inzendingen
+      WHERE (talentpool = 0 AND aangemaakt < @kort)
+         OR (talentpool = 1 AND aangemaakt < @lang)`,
+  ),
 };
 
 /* ------------------------------------------------------------

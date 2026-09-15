@@ -441,6 +441,7 @@ import { normaliseerTelefoon } from './telefoon.js';
           email: $('email').value,
           mboDiploma: staat.mbo,
           akkoord: $('akkoord').checked,
+          talentpool: $('talentpool').checked,
         },
       });
       tekenBedank(r);

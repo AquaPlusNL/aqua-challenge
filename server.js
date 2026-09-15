@@ -29,7 +29,13 @@ if (ADMIN_TOKEN.length < 32 || ADMIN_TOKEN.startsWith('verander-dit')) {
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
-const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 365);
+// Twee bewaartermijnen, zie de privacyverklaring hoofdstuk 7: vier weken voor
+// contactgegevens zonder vervolg, twaalf maanden bij talentpool-toestemming.
+const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 28);
+const TALENTPOOL_BEWAARDAGEN = Number(process.env.TALENTPOOL_BEWAARDAGEN || 365);
+// Versie van de privacyverklaring waarmee de kandidaat akkoord gaat. Houd dit
+// gelijk aan de versiedatum bovenaan public/privacyverklaring.html.
+const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-09-15';
 const CONTACT = { email: process.env.CONTACT_EMAIL || '' };
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
@@ -279,6 +285,9 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
   if (b.akkoord !== true) {
     return fout(res, 400, 'Zonder akkoord kunnen we je gegevens niet bewaren.');
   }
+  /* De talentpool is vrijwillig: geen vinkje betekent gewoon de korte
+     bewaartermijn, niet een geweigerde inzending. */
+  const talentpool = b.talentpool === true;
   if (voornaam.length < 2) return fout(res, 400, 'Vul je voornaam in.');
   if (!telefoon) return fout(res, 400, 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12 34 56 78.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
@@ -313,6 +322,8 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
       fouten: JSON.parse(s.resultaten).reduce((a, r) => a + (r.foutePogingen || 0), 0),
       aangemaakt: Date.now(),
       toestemming_op: Date.now(),
+      toestemming_versie: PRIVACY_VERSIE,
+      talentpool: talentpool ? 1 : 0,
     }).lastInsertRowid;
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) {
@@ -425,7 +436,10 @@ function ruimOp() {
   const sessies = q.verwijderOudeSessies.run(nu - SESSIE_BEWAARDAGEN * 86_400_000).changes;
   if (sessies) console.log(`[opruiming] ${sessies} oude sessies verwijderd`);
 
-  const inzendingen = q.verwijderOudeInzendingen.run(nu - INZENDING_BEWAARDAGEN * 86_400_000).changes;
+  const inzendingen = q.verwijderOudeInzendingen.run({
+    kort: nu - INZENDING_BEWAARDAGEN * 86_400_000,
+    lang: nu - TALENTPOOL_BEWAARDAGEN * 86_400_000,
+  }).changes;
   if (inzendingen) console.log(`[opruiming] ${inzendingen} verlopen inzendingen verwijderd`);
 }
 ruimOp();
