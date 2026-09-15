@@ -305,6 +305,12 @@ app.post('/api/sessie/:id/antwoord', (req, res) => {
    Contactformulier. Per IP-hash maximaal een inzending.
    ============================================================ */
 app.post('/api/sessie/:id/inzending', (req, res) => {
+  /* We vergelijken de ip_hash van de sessie bewust niet met die van de inzender.
+     Dat is een keuze, geen vergissing: wie tijdens het spelen van wifi naar 4G
+     overstapt zou anders zijn eigen inzending niet meer kwijt kunnen. Het sessie-id
+     is een willekeurige UUID, dus je moet hem van de speler zelf krijgen om er
+     iets mee te kunnen; wat je er dan mee wint is andermans tijd op de ranglijst,
+     onder je eigen naam. Wil je dat dichtzetten, vergelijk dan s.ip_hash. */
   const s = q.sessie.get(req.params.id);
   if (!s) return fout(res, 404, 'Onbekende sessie.');
   if (!s.afgerond) return fout(res, 409, 'De challenge is nog niet afgerond.');
