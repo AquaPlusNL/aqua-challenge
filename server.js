@@ -112,6 +112,7 @@ app.get('/dev-reload.js', (req, res) => {
 });
 
 /* ---------- simpele snelheidsbegrenzer per IP-hash ---------- */
+const VENSTER_MS = 60_000;
 const tellers = new Map();
 function begrens(sleutel, max, vensterMs) {
   const nu = Date.now();
@@ -120,7 +121,16 @@ function begrens(sleutel, max, vensterMs) {
   tellers.set(sleutel, rij);
   return rij.length <= max;
 }
-setInterval(() => tellers.clear(), 10 * 60 * 1000).unref();
+
+/* Alleen sleutels weggooien die buiten het venster vallen. Eerder werd de hele
+   map geleegd, en dan kon je met een beetje timing rond die schoonmaak het
+   dubbele van je limiet halen. */
+setInterval(() => {
+  const grens = Date.now() - VENSTER_MS;
+  for (const [sleutel, rij] of tellers) {
+    if (rij.every((t) => t < grens)) tellers.delete(sleutel);
+  }
+}, 10 * 60 * 1000).unref();
 
 const ipHashVan = (req) => hashIp(req.ip);
 const levels = () => actieveLevels();
