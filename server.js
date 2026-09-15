@@ -306,9 +306,12 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
 
   const b = req.body || {};
   /* Alleen het eerste woord: op de ranglijst komt uitsluitend de voornaam. */
-  const voornaam = String(b.voornaam || '').trim().split(/\s+/)[0];
+  /* Afkappen, niet weigeren: 40 tekens is ruim voor een voornaam, en wie meer
+     instuurt is geen kandidaat. Zonder grens komt een naam van kilobytes lang
+     ongeschonden op de ranglijst van iedere bezoeker terecht. */
+  const voornaam = String(b.voornaam || '').trim().split(/\s+/)[0].slice(0, 40);
   const telefoon = normaliseerTelefoon(b.telefoon);
-  const email = String(b.email || '').trim();
+  const email = String(b.email || '').trim().slice(0, 254);
   const mbo = b.mboDiploma;
 
   /* AVG: zonder akkoord slaan we niets op. De vinkjes in de browser zijn

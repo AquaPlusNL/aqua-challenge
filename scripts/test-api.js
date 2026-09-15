@@ -190,7 +190,7 @@ try {
      De talentpool mag geen voorwaarde zijn om mee te doen. */
   const [metCode, met] = await api(`/api/sessie/${s1.sessieId}/inzending`, {
     method: 'POST',
-    body: { ...gegevens, akkoord: true },
+    body: { ...gegevens, voornaam: 'Testpiet'.padEnd(5000, 'x'), akkoord: true },
   });
   check('met akkoord opgeslagen, talentpool leeg', metCode === 200 && met.opgeslagen === true);
 
@@ -215,7 +215,11 @@ try {
   );
 
   const [, bord] = await api('/api/leaderboard');
-  check('op de ranglijst', bord.leaderboard.some((r) => r.voornaam === 'Testpiet'));
+  check('op de ranglijst', bord.leaderboard.some((r) => r.voornaam.startsWith('Testpiet')));
+  check(
+    'geen namen van kilobytes op de ranglijst',
+    bord.leaderboard.every((r) => r.voornaam.length <= 40),
+  );
 
   /* ---------- niets prijsgeven over een eerdere deelnemer ---------- */
   const [, s2] = await api('/api/sessie', { method: 'POST' });
