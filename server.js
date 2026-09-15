@@ -10,7 +10,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, q, hashIp, resetDb, statistiek } from './src/db.js';
-import { actieveLevels, levelPubliek, GRACE_MS } from './src/spellen.js';
+import { actieveLevels, levelPubliek, GRACE_MS, MINIMUM_MS } from './src/spellen.js';
 import { normaliseerTelefoon } from './src/telefoon.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -207,6 +207,13 @@ app.get('/api/sessie/:id/level', (req, res) => {
    Klok af -> level niet gehaald, volle leveltijd gerekend, door.
    ============================================================ */
 app.post('/api/sessie/:id/antwoord', (req, res) => {
+  /* Dit endpoint had als enige in het spel geen begrenzing. Zestig antwoorden
+     per minuut is ruim voor vier levels met hervatten na een fout, en te weinig
+     voor een script dat de ranglijst wil vullen. */
+  if (!begrens(`antwoord:${ipHashVan(req)}`, 60, VENSTER_MS)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
+
   const s = q.sessie.get(req.params.id);
   if (!s) return fout(res, 404, 'Onbekende sessie.');
   if (s.afgerond) return fout(res, 409, 'Deze sessie is al afgerond.');
@@ -219,6 +226,12 @@ app.post('/api/sessie/:id/antwoord', (req, res) => {
   const keuze = typeof req.body?.keuze === 'string' ? req.body.keuze : null;
   const nu = Date.now();
   const verstrekenMs = nu - s.level_gestart_op;
+
+  /* Te snel om gelezen te kunnen zijn. Het level blijft open en de klok loopt
+     door, dus een mens die dit ooit ziet klikt gewoon nog een keer. */
+  if (verstrekenMs < MINIMUM_MS) {
+    return fout(res, 400, 'Dat ging wel erg snel. Lees de vraag en probeer het opnieuw.');
+  }
   const maxMs = level.maxSeconden * 1000;
   const tijdOm = keuze === null || verstrekenMs > maxMs + GRACE_MS;
   const goed = !tijdOm && keuze === level.juist;

@@ -17,7 +17,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
-import { actieveLevels } from '../src/spellen.js';
+import { actieveLevels, MINIMUM_MS } from '../src/spellen.js';
 
 const wortel = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const ADMIN_TOKEN = crypto.randomBytes(32).toString('hex');
@@ -117,6 +117,9 @@ async function speelUit(sessieId) {
   for (const level of actieveLevels()) {
     const [, lv] = await api(`/api/sessie/${sessieId}/level`);
     if (lv.klaar) break;
+    /* De server weigert antwoorden die sneller komen dan MINIMUM_MS, dus even
+       wachten. Dat die grens er is, testen we hieronder apart. */
+    await new Promise((k) => setTimeout(k, MINIMUM_MS + 50));
     await api(`/api/sessie/${sessieId}/antwoord`, {
       method: 'POST',
       body: { keuze: level.juist },
@@ -135,11 +138,30 @@ try {
   const [, eersteLevel] = await api(`/api/sessie/${s1.sessieId}/level`);
   check('het juiste antwoord gaat niet mee naar de browser', !('juist' in eersteLevel.level));
 
+  await new Promise((k) => setTimeout(k, MINIMUM_MS + 50));
   const [, fout] = await api(`/api/sessie/${s1.sessieId}/antwoord`, {
     method: 'POST',
     body: { keuze: 'bestaat-niet' },
   });
   check('fout antwoord mag opnieuw', fout.opnieuw === true);
+
+  /* Te snel antwoorden telt niet. Zonder deze grens zet een script vier levels
+     in enkele tientallen milliseconden neer en is de ranglijst waardeloos. */
+  const [, s0] = await api('/api/sessie', { method: 'POST' });
+  await api(`/api/sessie/${s0.sessieId}/level`);
+  const [snelCode, snel] = await api(`/api/sessie/${s0.sessieId}/antwoord`, {
+    method: 'POST',
+    body: { keuze: actieveLevels()[0].juist },
+  });
+  check('te snel antwoorden wordt geweigerd', snelCode === 400 && /snel/i.test(snel.fout || ''));
+
+  /* Het level moet wel open blijven: een mens die dit ziet klikt gewoon nog eens. */
+  await new Promise((k) => setTimeout(k, MINIMUM_MS + 50));
+  const [traagCode, traag] = await api(`/api/sessie/${s0.sessieId}/antwoord`, {
+    method: 'POST',
+    body: { keuze: actieveLevels()[0].juist },
+  });
+  check('daarna telt hetzelfde antwoord gewoon', traagCode === 200 && traag.goed === true);
 
   await speelUit(s1.sessieId);
   const [, na] = await api(`/api/sessie/${s1.sessieId}/level`);
