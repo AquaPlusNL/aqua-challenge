@@ -16,6 +16,11 @@ import { normaliseerTelefoon } from './src/telefoon.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+// Standaard alleen bereikbaar vanaf de machine zelf. Achter een reverse proxy is
+// dat wat je wilt: de app hoort niet naast de proxy om benaderbaar te zijn, want
+// dan vervalt zowel TLS als het echte client-IP. In een container, waar het
+// verkeer van buiten de netwerknamespace komt, zet je HOST=0.0.0.0.
+const HOST = process.env.HOST || '127.0.0.1';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 // De admin-endpoints kunnen alle inzendingen wissen. Niet starten met een
 // ontbrekend, kort of nog niet vervangen voorbeeldtoken.
@@ -501,7 +506,7 @@ function ruimOp() {
 ruimOp();
 setInterval(ruimOp, 6 * 60 * 60 * 1000).unref();
 
-app.listen(PORT, () => {
-  console.log(`Aqua+ Challenge draait op http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Aqua+ Challenge draait op http://${HOST}:${PORT}`);
   console.log(`Levels: ${levels().length} | redirect na afloop naar: ${VACATURE_URL}`);
 });
