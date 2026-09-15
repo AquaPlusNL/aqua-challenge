@@ -440,6 +440,8 @@ import { normaliseerTelefoon } from './telefoon.js';
           telefoon: $('telefoon').value,
           email: $('email').value,
           mboDiploma: staat.mbo,
+          akkoord: $('akkoord').checked,
+          talentpool: $('talentpool').checked,
         },
       });
       tekenBedank(r);
@@ -587,9 +589,8 @@ import { normaliseerTelefoon } from './telefoon.js';
       if (s.alIngezonden) {
         $('alIngezonden').classList.remove('verborgen');
         $('alIngezondenTekst').textContent =
-          `Vanaf dit netwerk is al meegedaan${
-            s.eerdereTijdMs ? ` (tijd ${tijd(s.eerdereTijdMs)})` : ''
-          }. Je mag opnieuw spelen, maar het formulier kan niet nog een keer verstuurd worden.`;
+          'Vanaf dit netwerk is al meegedaan. Je mag opnieuw spelen, maar het formulier ' +
+          'kan niet nog een keer verstuurd worden.';
       }
       toon('start');
     } catch (err) {

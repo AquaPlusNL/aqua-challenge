@@ -39,7 +39,17 @@ db.exec(`
     mbo_diploma  INTEGER NOT NULL,
     totaal_ms    INTEGER NOT NULL,
     fouten       INTEGER NOT NULL DEFAULT 0,
-    aangemaakt   INTEGER NOT NULL
+    aangemaakt   INTEGER NOT NULL,
+    /* Tijdstip waarop de kandidaat akkoord gaf, en de versie van de
+       privacyverklaring die op dat moment gold. AVG: zonder deze velden
+       hebben we geen bewijs van toestemming voor de opgeslagen PII, en
+       kunnen we niet laten zien waarmee iemand akkoord ging. */
+    toestemming_op     INTEGER,
+    toestemming_versie TEXT,
+    /* Aparte, vrijwillige toestemming voor de talentpool (Jobylon).
+       Bepaalt de bewaartermijn: zonder is het vier weken, met twaalf
+       maanden. Zie de privacyverklaring, hoofdstuk 7. */
+    talentpool         INTEGER NOT NULL DEFAULT 0
   );
 
   CREATE INDEX IF NOT EXISTS idx_tijd    ON inzendingen (totaal_ms ASC, fouten ASC, aangemaakt ASC);
@@ -47,10 +57,19 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_ses_lvl ON sessies (hoogste_level);
 `);
 
-/* Migratie voor bestaande databases: kolom fouten (som van foute pogingen,
-   tweede sorteersleutel op de ranglijst na de tijd). */
-if (!db.prepare(`PRAGMA table_info(inzendingen)`).all().some((k) => k.name === 'fouten')) {
-  db.exec(`ALTER TABLE inzendingen ADD COLUMN fouten INTEGER NOT NULL DEFAULT 0`);
+/* Migraties voor bestaande databases:
+     fouten              som van foute pogingen, tweede sorteersleutel op de ranglijst
+     toestemming_op      tijdstip van akkoord (AVG)
+     toestemming_versie  welke privacyverklaring op dat moment gold
+     talentpool          aparte toestemming voor bewaring in Jobylon */
+const kolommen = db.prepare(`PRAGMA table_info(inzendingen)`).all().map((k) => k.name);
+for (const [naam, definitie] of [
+  ['fouten', 'INTEGER NOT NULL DEFAULT 0'],
+  ['toestemming_op', 'INTEGER'],
+  ['toestemming_versie', 'TEXT'],
+  ['talentpool', 'INTEGER NOT NULL DEFAULT 0'],
+]) {
+  if (!kolommen.includes(naam)) db.exec(`ALTER TABLE inzendingen ADD COLUMN ${naam} ${definitie}`);
 }
 
 /* ------------------------------------------------------------
@@ -58,11 +77,17 @@ if (!db.prepare(`PRAGMA table_info(inzendingen)`).all().some((k) => k.name === '
    alleen een SHA-256-hash met een geheim zout uit .env. Daarmee
    kun je zien of vanaf dit netwerk al is ingezonden, maar niet
    herleiden welk IP dat was.
+
+   Zonder een goed zout is die hash waardeloos: de hele IPv4-ruimte is
+   in minuten door te rekenen. Daarom starten we niet zonder zout, en
+   ook niet met de voorbeeldwaarde uit .env.example.
    ------------------------------------------------------------ */
 const SALT = process.env.IP_SALT || '';
-if (!SALT) {
-  console.warn(
-    '[let op] IP_SALT is niet gezet. Zet een lange willekeurige waarde in .env voordat je live gaat.',
+if (SALT.length < 32 || SALT.startsWith('verander-dit')) {
+  throw new Error(
+    'IP_SALT ontbreekt, is korter dan 32 tekens of staat nog op de voorbeeldwaarde. ' +
+      'Zet een lange willekeurige waarde in .env, bijvoorbeeld met:\n' +
+      "  node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
   );
 }
 export const hashIp = (ip) =>
@@ -91,9 +116,11 @@ export const q = {
   inzending: db.prepare(`SELECT * FROM inzendingen WHERE id = ?`),
   bewaarInzending: db.prepare(
     `INSERT INTO inzendingen (sessie_id, ip_hash, voornaam, telefoon, email,
-                              mbo_diploma, totaal_ms, fouten, aangemaakt)
+                              mbo_diploma, totaal_ms, fouten, aangemaakt,
+                              toestemming_op, toestemming_versie, talentpool)
      VALUES (@sessie_id, @ip_hash, @voornaam, @telefoon, @email,
-             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt)`,
+             @mbo_diploma, @totaal_ms, @fouten, @aangemaakt,
+             @toestemming_op, @toestemming_versie, @talentpool)`,
   ),
   /* Snelste tijd bovenaan; bij gelijke tijd wint wie de minste fouten maakte. */
   top: db.prepare(
@@ -108,6 +135,13 @@ export const q = {
   ),
   aantalInzendingen: db.prepare(`SELECT COUNT(*) AS n FROM inzendingen`),
   verwijderOudeSessies: db.prepare(`DELETE FROM sessies WHERE laatst_actief < ?`),
+  /* AVG-bewaartermijn, twee termijnen, zie de privacyverklaring hoofdstuk 7:
+     zonder talentpool-toestemming vier weken, met toestemming twaalf maanden. */
+  verwijderOudeInzendingen: db.prepare(
+    `DELETE FROM inzendingen
+      WHERE (talentpool = 0 AND aangemaakt < @kort)
+         OR (talentpool = 1 AND aangemaakt < @lang)`,
+  ),
 };
 
 /* ------------------------------------------------------------

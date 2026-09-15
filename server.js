@@ -17,9 +17,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+// De admin-endpoints kunnen alle inzendingen wissen. Niet starten met een
+// ontbrekend, kort of nog niet vervangen voorbeeldtoken.
+if (ADMIN_TOKEN.length < 32 || ADMIN_TOKEN.startsWith('verander-dit')) {
+  throw new Error(
+    'ADMIN_TOKEN ontbreekt, is korter dan 32 tekens of staat nog op de voorbeeldwaarde. ' +
+      'Zet een lange willekeurige waarde in .env, bijvoorbeeld met:\n' +
+      "  node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+  );
+}
 const VACATURE_URL = process.env.VACATURE_URL || '/vacatures';
 const REDIRECT_SECONDEN = Number(process.env.REDIRECT_SECONDEN || 5);
 const SESSIE_BEWAARDAGEN = Number(process.env.SESSIE_BEWAARDAGEN || 30);
+// Twee bewaartermijnen, zie de privacyverklaring hoofdstuk 7: vier weken voor
+// contactgegevens zonder vervolg, twaalf maanden bij talentpool-toestemming.
+const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 28);
+const TALENTPOOL_BEWAARDAGEN = Number(process.env.TALENTPOOL_BEWAARDAGEN || 365);
+// Versie van de privacyverklaring waarmee de kandidaat akkoord gaat. Houd dit
+// gelijk aan de versiedatum bovenaan public/privacyverklaring.html.
+const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-09-15';
 const CONTACT = { email: process.env.CONTACT_EMAIL || '' };
 
 // Achter nginx, Traefik of Cloudflare: TRUST_PROXY=1.
@@ -32,6 +48,12 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
+  // Alleen sturen als de verbinding al beveiligd is; op http://localhost
+  // negeert de browser de header toch en zet hij alleen maar aan tot verwarring.
+  // req.secure kijkt naar X-Forwarded-Proto, dus TRUST_PROXY moet goed staan.
+  if (req.secure) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
@@ -120,8 +142,9 @@ app.post('/api/sessie', (req, res) => {
     aantalLevels: lijst.length,
     vacatureUrl: VACATURE_URL,
     contact: CONTACT,
+    /* Wel melden dat er al is ingezonden, niet met welke tijd: op een gedeeld
+       netwerk (kantoor, school, beursstand) is dat de tijd van iemand anders. */
     alIngezonden: Boolean(eerder),
-    eerdereTijdMs: eerder ? eerder.totaal_ms : null,
   });
 });
 
@@ -257,6 +280,14 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
   const email = String(b.email || '').trim();
   const mbo = b.mboDiploma;
 
+  /* AVG: zonder akkoord slaan we niets op. De vinkjes in de browser zijn
+     geen grondslag; de server moet het eisen en het moment vastleggen. */
+  if (b.akkoord !== true) {
+    return fout(res, 400, 'Zonder akkoord kunnen we je gegevens niet bewaren.');
+  }
+  /* De talentpool is vrijwillig: geen vinkje betekent gewoon de korte
+     bewaartermijn, niet een geweigerde inzending. */
+  const talentpool = b.talentpool === true;
   if (voornaam.length < 2) return fout(res, 400, 'Vul je voornaam in.');
   if (!telefoon) return fout(res, 400, 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12 34 56 78.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
@@ -272,7 +303,9 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
         'Vanaf dit netwerk is al eerder meegedaan. Je gegevens zijn niet opnieuw opgeslagen.',
       vacatureUrl: VACATURE_URL,
       redirectSeconden: REDIRECT_SECONDEN,
-      ...bordPayload(eerder.id),
+      /* Geen eigen positie of tijd: die horen bij de eerdere inzending, en dat
+         is op een gedeeld netwerk iemand anders. Alleen het publieke bord. */
+      ...bordPayload(null),
     });
   }
 
@@ -288,6 +321,9 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
       totaal_ms: s.totaal_ms,
       fouten: JSON.parse(s.resultaten).reduce((a, r) => a + (r.foutePogingen || 0), 0),
       aangemaakt: Date.now(),
+      toestemming_op: Date.now(),
+      toestemming_versie: PRIVACY_VERSIE,
+      talentpool: talentpool ? 1 : 0,
     }).lastInsertRowid;
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) {
@@ -347,23 +383,31 @@ function bordPayload(eigenId) {
 /* ============================================================
    Admin: statistiek en reset
    ============================================================ */
+/* Het admin-token is onbeperkt te raden zolang er niets tegenover staat, en
+   /api/admin/reset wist alle inzendingen. Eén begrenzer voor alle admin-routes,
+   zodat een nieuwe route hem niet per ongeluk kan overslaan. */
+app.use('/api/admin', (req, res, next) => {
+  if (!begrens(`admin:${ipHashVan(req)}`, 10, 60_000)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
+  next();
+});
+
+// Beide kanten eerst hashen: dan zijn de buffers altijd even lang, lekt de
+// lengte van het token niet, en gooit timingSafeEqual niet op multibyte invoer.
+const tokenHash = (s) => crypto.createHash('sha256').update(String(s)).digest();
+const ADMIN_HASH = tokenHash(ADMIN_TOKEN);
+
 function adminOk(req) {
-  if (!ADMIN_TOKEN) return false;
-  const geleverd = req.get('x-admin-token') || '';
-  return (
-    geleverd.length === ADMIN_TOKEN.length &&
-    crypto.timingSafeEqual(Buffer.from(geleverd), Buffer.from(ADMIN_TOKEN))
-  );
+  return crypto.timingSafeEqual(tokenHash(req.get('x-admin-token') || ''), ADMIN_HASH);
 }
 
 app.get('/api/admin/statistiek', (req, res) => {
-  if (!ADMIN_TOKEN) return fout(res, 500, 'ADMIN_TOKEN is niet ingesteld op de server.');
   if (!adminOk(req)) return fout(res, 401, 'Ongeldig admin-token.');
   res.json(statistiek(levels().length));
 });
 
 app.post('/api/admin/reset', (req, res) => {
-  if (!ADMIN_TOKEN) return fout(res, 500, 'ADMIN_TOKEN is niet ingesteld op de server.');
   if (!adminOk(req)) return fout(res, 401, 'Ongeldig admin-token.');
   const wat = ['inzendingen', 'sessies', 'alles'].includes(req.body?.wat) ? req.body.wat : 'alles';
   res.json({ gereset: wat, resterend: resetDb(wat) });
@@ -382,14 +426,24 @@ app.use((err, req, res, next) => {
   res.status(500).json({ fout: 'Er ging iets mis op de server.' });
 });
 
-/* ------------ periodieke opruiming van oude sessies ------------ */
-function ruimOudeSessiesOp() {
-  const grens = Date.now() - SESSIE_BEWAARDAGEN * 86_400_000;
-  const n = q.verwijderOudeSessies.run(grens).changes;
-  if (n) console.log(`[opruiming] ${n} oude sessies verwijderd`);
+/* ------------ periodieke opruiming ------------
+   Sessies zijn voortgangstracking. Inzendingen bevatten persoonsgegevens en
+   vallen onder de AVG-bewaartermijn: weg als de termijn verstreken is. Let op:
+   daarmee verdwijnt die deelnemer ook van de ranglijst, en vervalt de
+   IP-blokkade, want die zit in dezelfde tabel. */
+function ruimOp() {
+  const nu = Date.now();
+  const sessies = q.verwijderOudeSessies.run(nu - SESSIE_BEWAARDAGEN * 86_400_000).changes;
+  if (sessies) console.log(`[opruiming] ${sessies} oude sessies verwijderd`);
+
+  const inzendingen = q.verwijderOudeInzendingen.run({
+    kort: nu - INZENDING_BEWAARDAGEN * 86_400_000,
+    lang: nu - TALENTPOOL_BEWAARDAGEN * 86_400_000,
+  }).changes;
+  if (inzendingen) console.log(`[opruiming] ${inzendingen} verlopen inzendingen verwijderd`);
 }
-ruimOudeSessiesOp();
-setInterval(ruimOudeSessiesOp, 6 * 60 * 60 * 1000).unref();
+ruimOp();
+setInterval(ruimOp, 6 * 60 * 60 * 1000).unref();
 
 app.listen(PORT, () => {
   console.log(`Aqua+ Challenge draait op http://localhost:${PORT}`);
