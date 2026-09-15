@@ -586,6 +586,13 @@ import { normaliseerTelefoon } from './telefoon.js';
       staat.aantalLevels = s.aantalLevels;
       $('overslaanLink').href = s.vacatureUrl || '/vacatures';
       vulContact(s.contact);
+      /* De toestemmingsteksten komen van de server, want dat zijn dezelfde
+         zinnen die per inzending worden vastgelegd. textContent, geen innerHTML:
+         hier hoort geen opmaak in, en zo kan er ook nooit iets uitgevoerd worden. */
+      if (s.toestemming) {
+        $('akkoordTekst').textContent = s.toestemming.akkoord;
+        $('talentpoolTekst').textContent = s.toestemming.talentpool;
+      }
       if (s.alIngezonden) {
         $('alIngezonden').classList.remove('verborgen');
         $('alIngezondenTekst').textContent =
