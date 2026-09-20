@@ -365,11 +365,8 @@ import { normaliseerTelefoon } from './telefoon.js';
      Resultaat
      ============================================================ */
   function naarResultaat(r) {
-    const alles = staat.gedaan.every((x) => x.gehaald) && staat.gedaan.length === staat.aantalLevels;
-    $('resultaatPill').textContent = alles ? 'Alle levels gehaald' : 'Storix afgerond!';
-    $('resultaatTitel').textContent = alles
-      ? 'Jij hebt de uitdaging gehaald'
-      : 'Nice, je hebt Storix afgerond!';
+    $('resultaatPill').textContent = 'Storix afgerond!';
+    $('resultaatTitel').textContent = 'Nice, je hebt Storix afgerond!';
     $('tijdCijfer').textContent = tijd(r.totaalMs ?? staat.gedaan.reduce((a, x) => a + x.tijdMs, 0));
     $('tijdDetail').textContent = `${staat.gedaan.filter((x) => x.gehaald).length} van ${
       staat.aantalLevels
@@ -495,7 +492,7 @@ import { normaliseerTelefoon } from './telefoon.js';
     const rijen = r.leaderboard || [];
     $('bordTabel').innerHTML = rijen.length
       ? `<table class="bord">
-           <thead><tr><th>#</th><th>Naam</th><th style="text-align:right">Tijd</th><th style="text-align:right">Fouten</th></tr></thead>
+           <thead><tr><th>#</th><th>Naam</th><th style="text-align:right">Tijd</th><th style="text-align:right">Pogingen</th></tr></thead>
            <tbody>${rijen
              .map(
                (x) => `<tr class="${x.ikzelf ? 'ikzelf' : ''}">
