@@ -198,7 +198,10 @@ privacy gaat.
    `"Pill Gothic 600mg"` vooraan in `--font-brand`.
 4. **`TRUST_PROXY=1`** zetten als de app achter nginx, Traefik of Cloudflare staat.
    Anders krijgt iedereen het IP van de proxy en blokkeert de eerste inzending
-   alle volgende.
+   alle volgende. Andersom net zo belangrijk: staat hij op `1` terwijl er géén
+   proxy voor staat, dan bepaalt de bezoeker zijn eigen IP met een
+   `X-Forwarded-For`-header en zijn de snelheidsbegrenzers en de
+   één-inzending-per-netwerkregel met één header te omzeilen.
 5. **`IP_SALT` en `ADMIN_TOKEN`** vullen met lange willekeurige waarden.
 6. **Privacyverklaring-URL** invullen.
 7. **Back-up van `data/challenge.db`** regelen; daar zitten de leads in.
