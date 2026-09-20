@@ -289,6 +289,26 @@ try {
       sluwRij.talentpool_tekst === s4.toestemming.talentpool,
   );
 
+  /* ---------- snelheidsbegrenzers ----------
+     Deze tests verbruiken hun hele venster, dus ze staan achteraan: alles wat
+     erna nog een level of de ranglijst opvraagt krijgt een 429 te zien. */
+
+  /* Een refresh van een level schrijft de sessie bij. Houd die route begrensd,
+     zodat een bekende UUID geen onbeperkte SQLite-writes kan veroorzaken. */
+  const [, limietSessie] = await api('/api/sessie', { method: 'POST' });
+  let levelLimietCode = 0;
+  for (let i = 0; i < 121; i++) {
+    [levelLimietCode] = await api(`/api/sessie/${limietSessie.sessieId}/level`);
+  }
+  check('level-opvragen worden begrensd', levelLimietCode === 429);
+
+  /* De ranglijst is de enige databaselezing zonder sessie. */
+  let bordLimietCode = 0;
+  for (let i = 0; i < 61; i++) {
+    [bordLimietCode] = await api('/api/leaderboard');
+  }
+  check('de ranglijst wordt begrensd', bordLimietCode === 429);
+
   /* ---------- admin-ingang ---------- */
   const [foutToken] = await api('/api/admin/statistiek', { headers: { 'x-admin-token': 'fout' } });
   check('fout admin-token geeft 401', foutToken === 401);

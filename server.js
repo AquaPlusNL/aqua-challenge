@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { db, q, hashIp, resetDb, statistiek } from './src/db.js';
 import { actieveLevels, levelPubliek, GRACE_MS, MINIMUM_MS } from './src/spellen.js';
 import { normaliseerTelefoon } from './src/telefoon.js';
+import { begrens, VENSTER_MS } from './src/begrenzer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -116,27 +117,6 @@ app.get('/dev-reload.js', (req, res) => {
   res.send(LIVE_RELOAD ? "new EventSource('/dev-reload').onmessage = () => location.reload();" : '');
 });
 
-/* ---------- simpele snelheidsbegrenzer per IP-hash ---------- */
-const VENSTER_MS = 60_000;
-const tellers = new Map();
-function begrens(sleutel, max, vensterMs) {
-  const nu = Date.now();
-  const rij = (tellers.get(sleutel) || []).filter((t) => nu - t < vensterMs);
-  rij.push(nu);
-  tellers.set(sleutel, rij);
-  return rij.length <= max;
-}
-
-/* Alleen sleutels weggooien die buiten het venster vallen. Eerder werd de hele
-   map geleegd, en dan kon je met een beetje timing rond die schoonmaak het
-   dubbele van je limiet halen. */
-setInterval(() => {
-  const grens = Date.now() - VENSTER_MS;
-  for (const [sleutel, rij] of tellers) {
-    if (rij.every((t) => t < grens)) tellers.delete(sleutel);
-  }
-}, 10 * 60 * 1000).unref();
-
 const ipHashVan = (req) => hashIp(req.ip);
 const levels = () => actieveLevels();
 const fout = (res, code, bericht) => res.status(code).json({ fout: bericht });
@@ -187,6 +167,14 @@ app.post('/api/sessie', (req, res) => {
    de klok van dat level.
    ============================================================ */
 app.get('/api/sessie/:id/level', (req, res) => {
+  // Dit endpoint raakt bij een refresh de sessie in SQLite aan. Ook lezen moet
+  // dus begrensd zijn, anders kan een bekende sessie onbegrensd writes afdwingen.
+  // Ruim boven de andere limieten: dit is het drukste endpoint van het spel, en
+  // achter een gedeeld IP spelen er meerdere mensen tegelijk. De write die we
+  // afschermen is een UPDATE van laatst_actief, niet iets duurs.
+  if (!begrens(`level:${ipHashVan(req)}`, 120, VENSTER_MS)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
   const s = q.sessie.get(req.params.id);
   if (!s) return fout(res, 404, 'Onbekende sessie.');
 
@@ -410,7 +398,14 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
 /* ============================================================
    GET /api/leaderboard
    ============================================================ */
-app.get('/api/leaderboard', (req, res) => res.json(bordPayload(null)));
+/* De enige databaselezing zonder sessie, en de enige die meegroeit met de
+   tabel: een top-10 plus een COUNT over alle inzendingen. */
+app.get('/api/leaderboard', (req, res) => {
+  if (!begrens(`bord:${ipHashVan(req)}`, 60, VENSTER_MS)) {
+    return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
+  }
+  res.json(bordPayload(null));
+});
 
 function bordPayload(eigenId) {
   const top = q.top.all(10).map((r, i) => ({
@@ -460,7 +455,12 @@ const tokenHash = (s) => crypto.createHash('sha256').update(String(s)).digest();
 const ADMIN_HASH = tokenHash(ADMIN_TOKEN);
 
 function adminOk(req) {
-  return crypto.timingSafeEqual(tokenHash(req.get('x-admin-token') || ''), ADMIN_HASH);
+  const ok = crypto.timingSafeEqual(tokenHash(req.get('x-admin-token') || ''), ADMIN_HASH);
+  /* Raden is kansloos bij een token van 32 tekens, maar dan wil je het wel zien
+     gebeuren. De IP-hash, niet het IP zelf: het logboek is geen uitzondering op
+     de regel dat we IP-adressen niet bewaren. */
+  if (!ok) console.warn(`[admin] ongeldig token van ${ipHashVan(req).slice(0, 12)}`);
+  return ok;
 }
 
 app.get('/api/admin/statistiek', (req, res) => {
