@@ -558,6 +558,41 @@ import { normaliseerTelefoon } from './telefoon.js';
   /* ============================================================
      Opstarten
      ============================================================ */
+  /* Privacyverklaring in een dialoogvenster, zodat de kandidaat het formulier niet
+     kwijtraakt. De tekst komt uit /privacyverklaring.html en wordt eenmalig opgehaald:
+     een bron van waarheid, dus de pagina en het venster kunnen niet uit elkaar lopen.
+     Mislukt het ophalen, dan doet de link gewoon wat hij zonder JavaScript ook doet. */
+  const privacyDialoog = $('privacyDialog');
+
+  $('privacyLink').addEventListener('click', async (e) => {
+    /* Meteen tegenhouden, nog voor de await: daarna is de navigatie al vertrokken. */
+    e.preventDefault();
+    if (!privacyDialoog.dataset.geladen) {
+      try {
+        const antwoord = await fetch('/privacyverklaring.html');
+        if (!antwoord.ok) throw new Error(String(antwoord.status));
+        const pagina = new DOMParser().parseFromString(await antwoord.text(), 'text/html');
+        const inhoud = pagina.querySelector('.body');
+        if (!inhoud) throw new Error('geen inhoud');
+        /* De knop "Terug naar de challenge" hoort bij de losse pagina, niet in het venster. */
+        inhoud.querySelector('a.knop')?.closest('p')?.remove();
+        /* Eigen statisch bestand van dezelfde server, geen invoer van een bezoeker. */
+        $('privacyInhoud').innerHTML = inhoud.innerHTML;
+        privacyDialoog.dataset.geladen = '1';
+      } catch {
+        window.open($('privacyLink').href, '_blank', 'noopener'); /* terugval: nieuw tabblad */
+        return;
+      }
+    }
+    $('privacyInhoud').scrollTop = 0;
+    privacyDialoog.showModal();
+  });
+
+  /* Klik naast het venster sluit het ook. Escape doet <dialog> zelf al. */
+  privacyDialoog.addEventListener('click', (e) => {
+    if (e.target === privacyDialoog) privacyDialoog.close();
+  });
+
   $('startKnop').addEventListener('click', () => toon('intro'));
 
   $('introKnop').addEventListener('click', async () => {

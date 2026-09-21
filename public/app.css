@@ -583,3 +583,42 @@ table.bord td.uitslag.nok { color: var(--amber); }
 .aftellen { border-top-color: var(--rand); }
 .aftellen .lijn { background: var(--rand); }
 .aftellen .lijn > i { background: var(--rood); }
+
+/* ---------------- Privacyverklaring in een dialoogvenster ---------------- */
+.privacyDialog {
+  width: min(560px, calc(100vw - 2 * var(--sp-4)));
+  max-width: none;
+  max-height: min(80vh, 640px);
+  padding: 0;
+  margin: auto;
+  color: var(--white);
+}
+/* display alleen als het venster openstaat: een kale `display: flex` overschrijft
+   de browserregel `dialog:not([open]) { display: none }` en dan blijft het staan. */
+.privacyDialog[open] { display: flex; flex-direction: column; }
+.privacyDialog::backdrop { background: rgba(0, 0, 0, .55); }
+.privacyKop {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--rand);
+  font-weight: var(--fw-bold);
+}
+.privacyKop form { margin-left: auto; }
+.privacySluit {
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: var(--fs-h2);
+  line-height: 1;
+  padding: var(--sp-2);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.privacySluit:hover { background: var(--vlak-hover); }
+/* Scrollen gebeurt hierbinnen: .kaart heeft overflow: clip, dus niet op het venster zelf. */
+.privacyInhoud { overflow-y: auto; }
+.privacyInhoud h1 { font-size: var(--fs-h2); }
+.privacyInhoud h2 { font-size: var(--fs-body); margin-top: var(--sp-5); }
+.privacyInhoud a { color: var(--white); }

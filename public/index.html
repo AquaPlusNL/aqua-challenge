@@ -174,7 +174,7 @@
 
         <p class="sub">Wij gebruiken jouw gegevens om contact met je op te nemen over werken bij
           Aqua+. Lees onze
-          <a href="/privacyverklaring.html" target="_blank" rel="noopener">privacyverklaring</a>.
+          <a id="privacyLink" href="/privacyverklaring.html" target="_blank" rel="noopener">privacyverklaring</a>.
           Wil je ook in beeld blijven voor toekomstige vacatures? Geef daarvoor hieronder apart
           toestemming.</p>
 
@@ -238,6 +238,19 @@
     <span class="slogan">Samen voor meer brandveiligheid</span>
   </div>
 </div>
+
+<!-- Privacyverklaring in een dialoogvenster. De inhoud wordt bij de eerste klik uit
+     /privacyverklaring.html gehaald, zodat er maar een bron van waarheid is. Lukt dat
+     niet, dan volgt de link gewoon zijn href en opent de pagina in een nieuw tabblad. -->
+<dialog id="privacyDialog" class="kaart privacyDialog" aria-labelledby="privacyTitel">
+  <div class="privacyKop">
+    <span id="privacyTitel">Privacyverklaring</span>
+    <form method="dialog">
+      <button class="privacySluit" aria-label="Sluiten" title="Sluiten">&#10005;</button>
+    </form>
+  </div>
+  <div class="body privacyInhoud" id="privacyInhoud"></div>
+</dialog>
 
 <script type="module" src="app.js"></script>
 <script src="dev-reload.js"></script>
