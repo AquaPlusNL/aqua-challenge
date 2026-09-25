@@ -83,7 +83,7 @@ export const levels = [
     vraag: 'Welke component controleer je als eerste? Klik het aan in de kast.',
     tekening: 'schakelkast',
     opties: [
-      { id: 'automaat', label: 'automaat' },
+      { id: 'automaat', label: 'zekering' },
       { id: 'relais', label: 'relais' },
       { id: 'motor', label: 'motor' },
       { id: 'voeding', label: 'voeding' },
@@ -108,9 +108,9 @@ export const levels = [
     tekening: 'storing',
     opties: [
       { id: 'voeding', label: 'voeding' },
-      { id: 'automaat', label: 'zekeringsautomaat' },
+      { id: 'automaat', label: 'zekering' },
       { id: 'relais', label: 'relais' },
-      { id: 'draad-relais-motor', label: 'draad tussen relais en motor' },
+      { id: 'draad-relais-motor', label: 'schakelaar tussen relais en motor' },
       { id: 'motor', label: 'motor' },
     ],
     juist: 'draad-relais-motor',
