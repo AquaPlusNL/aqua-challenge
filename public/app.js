@@ -115,7 +115,7 @@ import { normaliseerTelefoon } from './telefoon.js';
         <text x="24" y="34" font-size="14" fill="${GRIJS}" letter-spacing="1.5">SCHAKELKAST</text>
         <line x1="40" y1="96" x2="420" y2="96" stroke="${INK}" stroke-width="2"/>
         ${blok('voeding', 34, 66, 84, 60, 'voeding')}
-        ${blok('automaat', 138, 66, 84, 60, 'automaat')}
+        ${blok('automaat', 138, 66, 84, 60, 'zekering')}
         ${blok('relais', 242, 66, 84, 60, 'relais')}
         ${blok('motor', 346, 66, 84, 60, 'motor')}
       </svg>`,
@@ -123,14 +123,14 @@ import { normaliseerTelefoon } from './telefoon.js';
     /* ---------- Level 4: storing zoeken ---------- */
     storing: `
       <svg viewBox="0 0 460 176" role="img"
-           aria-label="Installatie met voeding, zekeringsautomaat, relais en motor, met een losgeraakte draad">
+           aria-label="Installatie met voeding, zekering, relais en motor, met een open schakelaar">
         <line x1="70" y1="70" x2="312" y2="70" stroke="${INK}" stroke-width="2.5"/>
         ${blok('voeding', 24, 40, 78, 60, 'voeding')}
-        ${blok('automaat', 122, 40, 92, 60, 'automaat')}
+        ${blok('automaat', 122, 40, 92, 60, 'zekering')}
         ${blok('relais', 234, 40, 78, 60, 'relais')}
 
         <g class="hotspot" data-klik="draad-relais-motor" tabindex="0" role="button"
-           aria-label="draad tussen relais en motor">
+           aria-label="schakelaar tussen relais en motor">
           <rect class="raak" x="306" y="36" width="86" height="68"/>
           <rect class="vlak" x="310" y="40" width="78" height="60" rx="4" fill="none" stroke="none"/>
           <line x1="312" y1="70" x2="328" y2="70" stroke="${INK}" stroke-width="2.5"/>
@@ -138,7 +138,7 @@ import { normaliseerTelefoon } from './telefoon.js';
           <circle cx="345" cy="39" r="4" fill="${INK}"/>
           <circle cx="371" cy="70" r="5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
           <line x1="376" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">draad</text>
+          <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
         </g>
 
         <line x1="386" y1="70" x2="410" y2="70" stroke="${INK}" stroke-width="2.5"/>

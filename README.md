@@ -58,8 +58,8 @@ Staan in `src/spellen.js`. Twee soorten:
 | --- | --- | --- | --- |
 | 1 | Het circuit compleet maken | 45s | A, draad tussen voeding en lamp |
 | 2 | Welke component hoort hierbij? | 45s | A, relais |
-| 3 | De schakelkast | 60s | automaat |
-| 4 | Storing zoeken | 90s | draad tussen relais en motor |
+| 3 | De schakelkast | 60s | zekering |
+| 4 | Storing zoeken | 90s | schakelaar tussen relais en motor |
 
 De kloktijden zijn een aanname van mij, ze stonden niet in de opzet. Pas
 `maxSeconden` per level aan naar wat jullie redelijk vinden. Loopt de klok af,
