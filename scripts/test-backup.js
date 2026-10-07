@@ -18,8 +18,10 @@ try {
   });
   source.close();
   if (result.status !== 0) throw new Error(result.stderr || 'Backup mislukt');
-  const files = fs.readdirSync(backups).filter((name) => name.endsWith('.db'));
-  if (files.length !== 1) throw new Error('Verwacht precies één backup');
+  const files = fs.readdirSync(backups);
+  if (files.length !== 1 || !files[0].endsWith('.db')) {
+    throw new Error(`Verwacht alleen één backupbestand, gevonden: ${files.join(', ')}`);
+  }
   const snapshot = new DatabaseSync(path.join(backups, files[0]), { readOnly: true });
   try {
     if (snapshot.prepare('SELECT value FROM check_backup').get().value !== 'bewaard') {

@@ -12,6 +12,7 @@ if (!dbPath || !directory) {
 const name = `challenge-${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
 const target = path.join(directory, name);
 const temporary = `${target}.tmp`;
+const temporarySidecars = [`${temporary}-shm`, `${temporary}-wal`];
 let source;
 try {
   fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
@@ -25,11 +26,19 @@ try {
   } finally {
     snapshot.close();
   }
+  for (const sidecar of temporarySidecars) {
+    try { fs.unlinkSync(sidecar); } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
   fs.chmodSync(temporary, 0o600);
   fs.renameSync(temporary, target);
   console.log(`Backup gemaakt: ${target}`);
 } catch (error) {
   try { fs.unlinkSync(temporary); } catch { /* geen tijdelijk bestand */ }
+  for (const sidecar of temporarySidecars) {
+    try { fs.unlinkSync(sidecar); } catch { /* geen tijdelijk bestand */ }
+  }
   console.error(error);
   process.exitCode = 1;
 } finally {
