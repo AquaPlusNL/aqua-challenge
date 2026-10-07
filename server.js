@@ -41,7 +41,7 @@ const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 28);
 const TALENTPOOL_BEWAARDAGEN = Number(process.env.TALENTPOOL_BEWAARDAGEN || 365);
 // Versie van de privacyverklaring waarmee de kandidaat akkoord gaat. Houd dit
 // gelijk aan de versiedatum bovenaan public/privacyverklaring.html.
-const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-09-15';
+const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-10-07';
 
 /* De toestemmingsteksten staan hier, en nergens anders. De pagina haalt ze op
    en toont ze; bij een inzending leggen we exact deze zinnen vast. Daarmee kan
