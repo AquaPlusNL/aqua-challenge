@@ -155,21 +155,28 @@
       <h1>Wie ben jij?</h1>
       <p class="sub">We zijn benieuwd naar jou en jouw kennis. Vul hieronder je gegevens in en een collega van Aqua+ neemt contact met je op.</p>
       <form id="formulier" novalidate>
-        <label for="voornaam">Naam</label>
-        <input id="voornaam" autocomplete="given-name" placeholder="Bijvoorbeeld Sanne" required>
-
-        <label for="telefoon">Telefoonnummer</label>
-        <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
-        <div class="callout fout verborgen" id="telefoonFout">Dit lijkt geen geldig telefoonnummer.
-          Gebruik bijvoorbeeld 06 12 34 56 78 of +31 6 12345678.</div>
-
-        <label for="email">E-mailadres</label>
-        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="jouw@email.nl" required>
-
-        <label>Heb je een mbo-diploma in de richting elektrotechniek?</label>
-        <div class="keuzeknoppen">
-          <button type="button" class="keuzeknop" data-mbo="ja">Ja</button>
-          <button type="button" class="keuzeknop" data-mbo="nee">Nee</button>
+        <div class="velden">
+          <div>
+            <label for="voornaam">Naam</label>
+            <input id="voornaam" autocomplete="given-name" placeholder="Bijvoorbeeld Sanne" required>
+          </div>
+          <div>
+            <label for="telefoon">Telefoonnummer</label>
+            <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
+          </div>
+          <div class="callout fout verborgen" id="telefoonFout">Dit lijkt geen geldig telefoonnummer.
+            Gebruik bijvoorbeeld 06 12 34 56 78 of +31 6 12345678.</div>
+          <div>
+            <label for="email">E-mailadres</label>
+            <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="jouw@email.nl" required>
+          </div>
+          <div>
+            <label>Heb je een mbo-diploma in de richting elektrotechniek?</label>
+            <div class="keuzeknoppen">
+              <button type="button" class="keuzeknop" data-mbo="ja">Ja</button>
+              <button type="button" class="keuzeknop" data-mbo="nee">Nee</button>
+            </div>
+          </div>
         </div>
 
         <p class="sub">Wij gebruiken jouw gegevens om contact met je op te nemen over werken bij

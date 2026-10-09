@@ -138,7 +138,8 @@ import { normaliseerTelefoon } from './telefoon.js';
           <circle cx="345" cy="39" r="4" fill="${INK}"/>
           <circle cx="371" cy="70" r="5" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
           <line x1="376" y1="70" x2="386" y2="70" stroke="${INK}" stroke-width="2.5"/>
-          <text class="naam" x="350" y="116" font-size="14" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
+          <!-- Boven de schakelaar: eronder raakte het label het motorblok. -->
+          <text class="naam" x="350" y="24" font-size="14" text-anchor="middle" fill="${GRIJS}">schakelaar</text>
         </g>
 
         <line x1="386" y1="70" x2="410" y2="70" stroke="${INK}" stroke-width="2.5"/>

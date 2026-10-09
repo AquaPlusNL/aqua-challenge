@@ -379,7 +379,9 @@ table.bord td.score { text-align: right; font-variant-numeric: tabular-nums; fon
 .tekening.vast .hotspot { cursor: default; pointer-events: none; }
 
 /* Meerkeuze met letters */
-.opties.letters { grid-template-columns: 1fr; gap: var(--sp-2); }
+/* Twee kolommen houdt het level laag; op een telefoon onder elkaar, de labels zijn lang. */
+.opties.letters { grid-template-columns: repeat(2, 1fr); gap: var(--sp-2); }
+@media (max-width: 460px) { .opties.letters { grid-template-columns: 1fr; } }
 .opties.letters .optie {
   display: flex; align-items: center; gap: var(--sp-3);
   text-align: left; font-size: var(--fs-body); padding: var(--sp-3) var(--sp-4);
@@ -399,6 +401,12 @@ table.bord td.tijd { text-align: right; font-variant-numeric: tabular-nums; }
 table.bord td.uitslag { width: 24px; font-weight: var(--fw-bold); }
 table.bord td.uitslag.ok  { color: var(--green); }
 table.bord td.uitslag.nok { color: var(--amber-ink); }
+
+/* Formuliervelden twee aan twee; invoervakken op één lijn, ook als een label
+   over twee regels loopt. Op een telefoon onder elkaar. */
+.velden { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-4); align-items: end; margin-bottom: var(--sp-5); }
+.velden .callout { grid-column: 1 / -1; }
+@media (max-width: 460px) { .velden { grid-template-columns: 1fr; } }
 
 /* Ja/nee-keuze in het formulier */
 .keuzeknoppen { display: flex; gap: var(--sp-3); }
@@ -445,9 +453,9 @@ body { background: var(--white); color: var(--white); }
 
 .kaart { background: var(--aqua-blue-700); border-color: var(--rand); box-shadow: none; }
 /* Even hoog op elk scherm, zodat het blok in het iframe niet verspringt.
-   1110px is het hoogste scherm (level 2 met uitleg) op volle breedte; de voet
+   650px houdt de korte schermen gelijk; levels en formulier groeien mee. De voet
    blijft onderaan. Langere inhoud, zoals op een telefoon, groeit gewoon mee. */
-body > div.kaart { min-height: 1110px; display: flex; flex-direction: column; }
+body > div.kaart { min-height: 650px; display: flex; flex-direction: column; }
 body > div.kaart > .body { flex: 1; }
 .kop   { background: var(--aqua-blue-700); border-bottom: 1px solid var(--rand); }
 .kop .sun { opacity: .9; }
