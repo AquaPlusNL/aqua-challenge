@@ -440,9 +440,15 @@ a.knop { display: block; text-align: center; text-decoration: none; }
   --focus-ring-color: #FFFFFF;
 }
 
-body { background: var(--aqua-blue-700); color: var(--white); }
+/* Wit om de kaart, zodat het spel in het iframe op www.aqua.nl aansluit. */
+body { background: var(--white); color: var(--white); }
 
 .kaart { background: var(--aqua-blue-700); border-color: var(--rand); box-shadow: none; }
+/* Even hoog op elk scherm, zodat het blok in het iframe niet verspringt.
+   1110px is het hoogste scherm (level 2 met uitleg) op volle breedte; de voet
+   blijft onderaan. Langere inhoud, zoals op een telefoon, groeit gewoon mee. */
+body > div.kaart { min-height: 1110px; display: flex; flex-direction: column; }
+body > div.kaart > .body { flex: 1; }
 .kop   { background: var(--aqua-blue-700); border-bottom: 1px solid var(--rand); }
 .kop .sun { opacity: .9; }
 .voet  { background: var(--aqua-blue-700); border-top: 1px solid var(--rand); color: var(--white); }
