@@ -69,7 +69,6 @@ app.set('trust proxy', Number(process.env.TRUST_PROXY || 0));
 // style-attributen en SVG-tekeningen, daarom style-src met 'unsafe-inline'.
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
   // Alleen sturen als de verbinding al beveiligd is; op http://localhost
   // negeert de browser de header toch en zet hij alleen maar aan tot verwarring.
@@ -80,7 +79,7 @@ app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+      "img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://www.aqua.nl",
   );
   next();
 });
