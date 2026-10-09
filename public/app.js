@@ -525,7 +525,13 @@ import { normaliseerTelefoon } from './telefoon.js';
       vulling.style.transform = `scaleX(${Math.max(0, over / seconden)})`;
       if (over <= 0) {
         clearInterval(staat.aftelId);
-        window.location.assign(url);
+        /* In een iframe het hele venster doorsturen, niet alleen het iframe.
+           Een browser kan dat zonder klik blokkeren; dan blijft de knop staan. */
+        try {
+          window.top.location.assign(url);
+        } catch {
+          // geblokkeerd: de bezoeker klikt zelf op "Bekijk de vacatures"
+        }
       }
     }, 1000);
   }
