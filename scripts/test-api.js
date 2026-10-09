@@ -327,6 +327,8 @@ try {
   /* ---------- beveiligingsheaders ---------- */
   const [, , headers] = await api('/api/gezond');
   check('CSP staat aan', (headers.get('content-security-policy') || '').includes("script-src 'self'"));
+  check('iframe alleen vanaf www.aqua.nl', (headers.get('content-security-policy') || '').includes("frame-ancestors 'self' https://www.aqua.nl"));
+  check('geen X-Frame-Options', headers.get('x-frame-options') === null);
   check('geen HSTS over gewone http', headers.get('strict-transport-security') === null);
 
   /* ---------- twee bewaartermijnen ----------
