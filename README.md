@@ -1,5 +1,7 @@
 # De Aqua+ Challenge
 
+Voor plaatsing op een publieke Ubuntu-VM: zie [deploy/README.md](deploy/README.md).
+
 Werving-game voor de vacature elektromonteur. De kandidaat speelt vier
 technische levels op tijd, vult daarna een kort contactformulier in, ziet de
 ranglijst en wordt automatisch doorgestuurd naar het vacatureoverzicht.
@@ -18,8 +20,7 @@ cp .env.example .env      # vul IP_SALT, ADMIN_TOKEN en VACATURE_URL in
 npm start                 # http://localhost:3000
 ```
 
-Node 20 of nieuwer. `better-sqlite3` compileert bij het installeren, dus op een
-schone server heb je build-tools nodig (`apt install build-essential python3`).
+Node 24 of nieuwer. De app gebruikt de ingebouwde `node:sqlite`-module.
 
 ---
 
@@ -99,7 +100,8 @@ Level  bereikt  gehaald  afgehaakt  gem. tijd  foute pogingen
   2         2        1          1        0.9s               0
 ```
 
-Zelfde gegevens via `GET /api/admin/statistiek` met de header `x-admin-token`.
+Zelfde gegevens via `GET /api/admin/statistiek` met de header `x-admin-token`,
+alleen vanaf localhost (eventueel via een SSH-tunnel).
 
 De tijd wordt volledig op de server gemeten, vanaf het moment dat de vraag
 uitgeleverd wordt. Het juiste antwoord staat niet in de paginabron. Een refresh
@@ -117,8 +119,8 @@ zet de klok niet terug. De ranglijst is dus niet te manipuleren met devtools.
 | `POST` | `/api/sessie/:id/antwoord` | Body `{ keuze }`. Fout antwoord geeft `opnieuw: true`. |
 | `POST` | `/api/sessie/:id/inzending` | Body `{ voornaam, telefoon, email, mboDiploma }`. Van `voornaam` bewaart de server alleen het eerste woord. `telefoon` wordt genormaliseerd naar `+31...` (zie `src/telefoon.js`); ongeldig nummer geeft 400. |
 | `GET` | `/api/leaderboard` | Tien snelste tijden. |
-| `GET` | `/api/admin/statistiek` | Afhaakmomenten per level. Header `x-admin-token`. |
-| `POST` | `/api/admin/reset` | Body `{ wat: "inzendingen" \| "sessies" \| "alles" }`. |
+| `GET` | `/api/admin/statistiek` | Afhaakmomenten per level. Alleen localhost, plus header `x-admin-token`. |
+| `POST` | `/api/admin/reset` | Alleen localhost, plus admin-token. Body `{ wat: "inzendingen" \| "sessies" \| "alles" }`. |
 | `GET` | `/api/gezond` | Statuscheck. |
 
 ---
@@ -171,14 +173,13 @@ privacy gaat.
   Woonplaats is uit het formulier gehaald, die stond niet in de nieuwe opzet.
 - **Zonder vinkje slaat de server niets op.** De toestemmingstekst noemt expliciet
   wat er op de ranglijst komt.
-- **Bewaartermijn leads: 12 maanden.** Contactgegevens in `inzendingen` worden na
-  12 maanden verwijderd. Deze opruimtaak is nog niet in code ingebouwd (alleen de
-  beslissing staat vast); dat is een kleine toevoeging, zelfde patroon als de
-  sessie-opruiming hieronder.
+- **Bewaartermijn leads:** zonder talentpool-toestemming 28 dagen, met aparte
+  talentpool-toestemming 365 dagen. De app ruimt verlopen inzendingen periodiek op.
 - **Sessies (voortgangstracking) worden na 30 dagen automatisch opgeruimd**
   (`SESSIE_BEWAARDAGEN` in `.env`). Dit bevat geen contactgegevens, alleen
   spelvoortgang, en houdt de tabel klein.
-- **De link `/privacyverklaring`** is een placeholder.
+- **De privacyverklaring staat op `/privacyverklaring.html`.** Controleer de
+  inhoud en verantwoordelijke organisatie vóór livegang.
 
 ---
 
@@ -203,7 +204,8 @@ privacy gaat.
    `X-Forwarded-For`-header en zijn de snelheidsbegrenzers en de
    één-inzending-per-netwerkregel met één header te omzeilen.
 5. **`IP_SALT` en `ADMIN_TOKEN`** vullen met lange willekeurige waarden.
-6. **Privacyverklaring-URL** invullen.
+6. **Privacyverklaring** inhoudelijk laten goedkeuren en de datum gelijk houden
+   aan `PRIVACY_VERSIE`.
 7. **Back-up van `data/challenge.db`** regelen; daar zitten de leads in.
    Dagelijkse kopie naar een andere locatie is ruim genoeg (laag schrijfvolume,
    maar de leads zijn onvervangbaar). Bewaar circa 30 dagen aan dagelijkse back-ups.

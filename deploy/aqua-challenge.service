@@ -1,0 +1,28 @@
+[Unit]
+Description=Aqua+ Challenge
+After=network.target
+
+[Service]
+Type=simple
+User=aqua-challenge
+Group=aqua-challenge
+WorkingDirectory=/opt/aqua-challenge
+EnvironmentFile=/etc/aqua-challenge.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=TRUST_PROXY=1
+Environment=DB_PATH=/var/lib/aqua-challenge/challenge.db
+ExecStart=/usr/bin/node /opt/aqua-challenge/server.js
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aqua-challenge
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

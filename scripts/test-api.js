@@ -199,7 +199,7 @@ try {
   leesDb.close();
   check('talentpool staat uit als het vinkje leeg bleef', rij.talentpool === 0);
   check('moment van toestemming vastgelegd', rij.toestemming_op > 0);
-  check('versie van de privacyverklaring vastgelegd', rij.toestemming_versie === '2026-09-15');
+  check('versie van de privacyverklaring vastgelegd', rij.toestemming_versie === '2026-10-07');
   check('bron van de toestemming vastgelegd', rij.toestemming_bron === 'inzendformulier challenge');
   check(
     'de vastgelegde tekst is die van de server',

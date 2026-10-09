@@ -1,0 +1,11 @@
+# Vervang de domeinnaam en installeer als /etc/caddy/Caddyfile.
+# DNS moet naar de VM wijzen; Caddy beheert daarna het TLS-certificaat.
+challenge.example.nl {
+	encode zstd gzip
+
+	# Beheer is alleen via SSH op 127.0.0.1:3000 bereikbaar.
+	@admin path /api/admin /api/admin/*
+	respond @admin 404
+
+	reverse_proxy 127.0.0.1:3000
+}

@@ -10,7 +10,8 @@
     "dev": "node --env-file-if-exists=.env --watch server.js",
     "reset": "node --env-file-if-exists=.env scripts/reset.js",
     "stats": "node --env-file-if-exists=.env scripts/stats.js",
-    "test": "node scripts/test-telefoon.js && node scripts/test-begrenzer.js && node scripts/test-api.js"
+    "export:leads": "node --env-file-if-exists=.env scripts/export-leads.js",
+    "test": "node scripts/test-telefoon.js && node scripts/test-begrenzer.js && node scripts/test-api.js && node scripts/test-backup.js && node scripts/test-export-leads.js"
   },
   "dependencies": {
     "express": "^4.21.2"

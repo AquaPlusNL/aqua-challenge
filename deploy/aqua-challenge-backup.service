@@ -1,0 +1,18 @@
+[Unit]
+Description=Backup Aqua+ Challenge SQLite database
+
+[Service]
+Type=oneshot
+User=aqua-challenge
+Group=aqua-challenge
+WorkingDirectory=/opt/aqua-challenge
+EnvironmentFile=/etc/aqua-challenge.env
+Environment=DB_PATH=/var/lib/aqua-challenge/challenge.db
+ExecStart=/usr/bin/node /opt/aqua-challenge/scripts/backup.js /var/backups/aqua-challenge
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/aqua-challenge
+RestrictAddressFamilies=AF_UNIX

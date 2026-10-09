@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Aqua+ Challenge backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+Unit=aqua-challenge-backup.service
+
+[Install]
+WantedBy=timers.target

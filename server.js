@@ -41,7 +41,7 @@ const INZENDING_BEWAARDAGEN = Number(process.env.INZENDING_BEWAARDAGEN || 28);
 const TALENTPOOL_BEWAARDAGEN = Number(process.env.TALENTPOOL_BEWAARDAGEN || 365);
 // Versie van de privacyverklaring waarmee de kandidaat akkoord gaat. Houd dit
 // gelijk aan de versiedatum bovenaan public/privacyverklaring.html.
-const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-09-15';
+const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-10-07';
 
 /* De toestemmingsteksten staan hier, en nergens anders. De pagina haalt ze op
    en toont ze; bij een inzending leggen we exact deze zinnen vast. Daarmee kan
@@ -443,6 +443,13 @@ function bordPayload(eigenId) {
    /api/admin/reset wist alle inzendingen. Eén begrenzer voor alle admin-routes,
    zodat een nieuwe route hem niet per ongeluk kan overslaan. */
 app.use('/api/admin', (req, res, next) => {
+  // Adminverkeer mag alleen uit dezelfde netwerknamespace komen. Achter een
+  // reverse proxy blijft de peer de proxy, ook met X-Forwarded-For; die header
+  // kan deze controle dus niet omzeilen. In een container: gebruik exec +
+  // localhost. Op een VM: localhost of een SSH-tunnel.
+  if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress)) {
+    return fout(res, 404, 'Niet gevonden.');
+  }
   if (!begrens(`admin:${ipHashVan(req)}`, 10, 60_000)) {
     return fout(res, 429, 'Te veel pogingen. Probeer het over een minuut opnieuw.');
   }
