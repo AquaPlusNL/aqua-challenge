@@ -406,7 +406,26 @@ table.bord td.uitslag.nok { color: var(--amber-ink); }
    over twee regels loopt. Op een telefoon onder elkaar. */
 .velden { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: var(--sp-4); align-items: end; margin-bottom: var(--sp-5); }
 .velden .callout { grid-column: 1 / -1; }
-@media (max-width: 460px) { .velden { grid-template-columns: 1fr; } }
+.velden .uitleg { grid-column: 2; margin-top: var(--sp-1); }
+/* Mbo-vraag over de volle breedte; Ja en Nee lopen gelijk met de twee invoervakken. */
+.velden .hele-rij { grid-column: 1 / -1; }
+.velden .keuzeknoppen { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+@media (max-width: 460px) {
+  .velden { grid-template-columns: 1fr; }
+  .velden .uitleg { grid-column: auto; }
+  .velden .keuzeknoppen { gap: var(--sp-3); }
+}
+
+/* Scoreteaser boven het formulier: de voortgangsblokjes van het spel, met één regel erbij. */
+.teaser {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-2);
+}
+.teaser .stappen { margin-bottom: var(--sp-2); }
+.teaser .stappen > i { height: 6px; }
+.teaser p { margin: 0; font-size: var(--fs-small); }
 
 /* Ja/nee-keuze in het formulier */
 .keuzeknoppen { display: flex; gap: var(--sp-3); }
@@ -432,6 +451,11 @@ table.bord td.uitslag.nok { color: var(--amber-ink); }
 .aftelTekst { font-size: var(--fs-small); color: var(--ink-soft); margin: var(--sp-3) 0 var(--sp-4); }
 .aftelTekst strong { color: var(--aqua-blue); font-size: var(--fs-h1); font-variant-numeric: tabular-nums; }
 a.knop { display: block; text-align: center; text-decoration: none; }
+.linkknop {
+  display: block; margin: var(--sp-4) auto 0; padding: var(--sp-1);
+  background: none; border: 0; font: inherit; font-size: var(--fs-small);
+  color: var(--ink-soft); text-decoration: underline; cursor: pointer;
+}
 
 /* ============================================================
    Donker thema (voorstel marketing, sept 2026): donkerblauw vlak,
@@ -465,7 +489,9 @@ body > div.kaart > .body { flex: 1; }
 h1, h2, .vraag, label { color: var(--white); }
 .sub, .mini, .stap, .leeg, .aftelTekst, .akkoord, .scorevlak .label { color: var(--aqua-sky); }
 .sub strong, .aftelTekst strong { color: var(--white); }
-.akkoord a { color: var(--white); }
+.akkoord a, .sub a { color: var(--white); }
+.linkknop { color: var(--aqua-sky); }
+.linkknop:hover { color: var(--white); }
 
 /* Klok */
 .klok { color: var(--white); background: var(--vlak); border-color: var(--rand); }
@@ -482,7 +508,9 @@ h1, h2, .vraag, label { color: var(--white); }
 .sun .stralen { transform-box: fill-box; transform-origin: center; transition: transform .1s linear; }
 
 /* Vlakken */
-.uitdagingen li, .scorevlak, .callout { background: var(--vlak); border-color: var(--rand); }
+.uitdagingen li, .scorevlak, .callout, .teaser { background: var(--vlak); border-color: var(--rand); }
+.teaser p strong { color: var(--white); }
+.teaser p { color: var(--aqua-sky); }
 .uitdagingen svg { color: var(--white); }
 .scorevlak .cijfer { color: var(--white); }
 .callout { border-left-color: var(--rood); }
@@ -513,7 +541,7 @@ h1, h2, .vraag, label { color: var(--white); }
 
 /* Formulier */
 input, select { background: var(--vlak); color: var(--white); border-color: var(--rand); }
-input::placeholder { color: var(--aqua-sky); opacity: .7; }
+input::placeholder { color: var(--aqua-sky); opacity: 1; } /* .7 haalde het contrast niet */
 input:hover, select:hover { border-color: var(--white); }
 input[aria-invalid="true"] {
   border-color: var(--rood);

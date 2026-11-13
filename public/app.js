@@ -35,6 +35,8 @@ import { normaliseerTelefoon } from './telefoon.js';
     mbo: null,
     gedaan: [],
     aftelId: null,
+    inzending: null,
+    vacatureUrl: '/vacatures',
   };
 
   const tijd = (ms) => {
@@ -363,7 +365,8 @@ import { normaliseerTelefoon } from './telefoon.js';
   }
 
   /* ============================================================
-     Resultaat
+     Resultaat. Eerst het formulier, de score pas daarna: zo laten
+     meer spelers hun gegevens achter. Overslaan blijft mogelijk.
      ============================================================ */
   function naarResultaat(r) {
     $('resultaatPill').textContent = 'Storix afgerond!';
@@ -387,18 +390,30 @@ import { normaliseerTelefoon } from './telefoon.js';
         .join('') +
       '</tbody>';
 
-    toon('resultaat');
+    const gehaald = staat.gedaan.filter((x) => x.gehaald).length;
+    $('formTeaser').innerHTML =
+      `Je haalde <strong>${gehaald} van ${staat.aantalLevels}</strong> levels. Je tijd en plek staan klaar.`;
+    $('formStappen').innerHTML = $('stappen').innerHTML;
+    toon('formulier');
+    /* Scheelt een tik op mobiel. preventScroll: in het iframe niet de hele pagina laten springen. */
+    $('voornaam').focus({ preventScroll: true });
   }
 
-  $('naarFormulierKnop').addEventListener('click', () => toon('formulier'));
+  $('overslaanKnop').addEventListener('click', () => toon('resultaat'));
+  $('vacatureKnop').addEventListener('click', () => {
+    if (staat.inzending) return tekenBedank(staat.inzending);
+    window.top.location.assign(staat.vacatureUrl);
+  });
 
   /* ============================================================
      Formulier
      ============================================================ */
   document.querySelectorAll('.keuzeknop').forEach((b) =>
     b.addEventListener('click', () => {
-      document.querySelectorAll('.keuzeknop').forEach((x) => x.classList.remove('aan'));
-      b.classList.add('aan');
+      document.querySelectorAll('.keuzeknop').forEach((x) => {
+        x.classList.toggle('aan', x === b);
+        x.setAttribute('aria-pressed', String(x === b));
+      });
       staat.mbo = b.dataset.mbo === 'ja';
     }),
   );
@@ -423,29 +438,28 @@ import { normaliseerTelefoon } from './telefoon.js';
       $('telefoonFout').classList.remove('verborgen');
       return $('telefoon').focus();
     }
-    if (!$('akkoord').checked) {
-      return meldFout($('formFout'), 'We hebben je toestemming nodig om contact op te nemen.');
-    }
     if (staat.mbo === null) {
       return meldFout($('formFout'), 'Geef aan of je een mbo-diploma elektrotechniek hebt.');
     }
     $('verstuurKnop').disabled = true;
+    $('verstuurKnop').textContent = 'Even laden';
     try {
       const r = await api(`/api/sessie/${staat.sessieId}/inzending`, {
         method: 'POST',
         body: {
           voornaam: $('voornaam').value,
           telefoon: $('telefoon').value,
-          email: $('email').value,
           mboDiploma: staat.mbo,
-          akkoord: $('akkoord').checked,
-          talentpool: $('talentpool').checked,
+          /* Op de knop klikken is het akkoord; de tekst staat er direct boven. */
+          akkoord: true,
         },
       });
-      tekenBedank(r);
+      staat.inzending = r;
+      toon('resultaat');
     } catch (err) {
       meldFout($('formFout'), err.message);
       $('verstuurKnop').disabled = false;
+      $('verstuurKnop').textContent = 'Zie je score';
     }
   });
 
@@ -623,15 +637,12 @@ import { normaliseerTelefoon } from './telefoon.js';
       const s = await api('/api/sessie', { method: 'POST' });
       staat.sessieId = s.sessieId;
       staat.aantalLevels = s.aantalLevels;
-      $('overslaanLink').href = s.vacatureUrl || '/vacatures';
+      staat.vacatureUrl = s.vacatureUrl || '/vacatures';
       vulContact(s.contact);
-      /* De toestemmingsteksten komen van de server, want dat zijn dezelfde
-         zinnen die per inzending worden vastgelegd. textContent, geen innerHTML:
+      /* De toestemmingstekst komt van de server, want dat is dezelfde zin
+         die per inzending wordt vastgelegd. textContent, geen innerHTML:
          hier hoort geen opmaak in, en zo kan er ook nooit iets uitgevoerd worden. */
-      if (s.toestemming) {
-        $('akkoordTekst').textContent = s.toestemming.akkoord;
-        $('talentpoolTekst').textContent = s.toestemming.talentpool;
-      }
+      if (s.toestemming) $('akkoordTekst').textContent = s.toestemming.akkoord;
       if (s.alIngezonden) {
         $('alIngezonden').classList.remove('verborgen');
         $('alIngezondenTekst').textContent =

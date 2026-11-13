@@ -141,79 +141,67 @@
     <div id="scherm-resultaat" class="verborgen">
       <span class="pill" id="resultaatPill">Storix afgerond!</span>
       <h1 id="resultaatTitel">Nice, je hebt Storix afgerond!</h1>
-      <p class="sub">Goed bezig. Niet iedereen haalt alle vier de levels, wij zijn benieuwd wie jij bent.</p>
+      <p class="sub">Goed bezig. Niet iedereen haalt alle vier de levels.</p>
       <div class="scorevlak">
         <span class="cijfer" id="tijdCijfer">0:00</span>
         <span class="label">totale tijd<br><span id="tijdDetail"></span></span>
       </div>
       <table class="bord" id="levelTabel"></table>
-      <button class="knop knop-primair" id="naarFormulierKnop">Toon me de vacatures</button>
+      <button class="knop knop-primair" id="vacatureKnop">Toon me de vacatures</button>
     </div>
 
     <!-- 6. formulier -->
     <div id="scherm-formulier" class="verborgen">
-      <h1>Wie ben jij?</h1>
-      <p class="sub">We zijn benieuwd naar jou en jouw kennis. Vul hieronder je gegevens in en een collega van Aqua+ neemt contact met je op.</p>
+      <h1>Bijna klaar! Waar sta jij op de ranglijst?</h1>
+      <p class="sub">Vul je gegevens in en zie meteen je tijd en je plek op de ranglijst.
+        Een collega van Aqua+ neemt contact met je op.</p>
+      <!-- Een tipje van de score als lokkertje; tijd en plek komen na het formulier.
+           Zelfde blokjes als tijdens het spelen, zodat het herkenbaar is. -->
+      <div class="teaser">
+        <div class="stappen" id="formStappen" aria-hidden="true"></div>
+        <p id="formTeaser">Je hebt Storix afgerond!</p>
+      </div>
       <form id="formulier" novalidate>
         <div class="velden">
           <div>
-            <label for="voornaam">Naam</label>
+            <label for="voornaam">Voornaam (komt op de ranglijst)</label>
             <input id="voornaam" autocomplete="given-name" placeholder="Bijvoorbeeld Sanne" required>
           </div>
           <div>
             <label for="telefoon">Telefoonnummer</label>
-            <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
+            <input id="telefoon" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" required
+                   aria-describedby="telefoonUitleg">
           </div>
+          <!-- Buiten het telefoonvak, anders duwt hij dat invoervak omhoog. -->
+          <p class="mini uitleg" id="telefoonUitleg">We bellen je alleen over werken bij Aqua+.
+            Geen spam.</p>
           <div class="callout fout verborgen" id="telefoonFout">Dit lijkt geen geldig telefoonnummer.
             Gebruik bijvoorbeeld 06 12 34 56 78 of +31 6 12345678.</div>
-          <div>
-            <label for="email">E-mailadres</label>
-            <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="jouw@email.nl" required>
-          </div>
-          <div>
-            <label>Heb je een mbo-diploma in de richting elektrotechniek?</label>
+          <div class="hele-rij" role="group" aria-labelledby="mboVraag">
+            <label id="mboVraag">Heb je een mbo-diploma in de richting elektrotechniek?</label>
             <div class="keuzeknoppen">
-              <button type="button" class="keuzeknop" data-mbo="ja">Ja</button>
-              <button type="button" class="keuzeknop" data-mbo="nee">Nee</button>
+              <button type="button" class="keuzeknop" data-mbo="ja" aria-pressed="false">Ja</button>
+              <button type="button" class="keuzeknop" data-mbo="nee" aria-pressed="false">Nee</button>
             </div>
           </div>
         </div>
 
-        <p class="sub">Wij gebruiken jouw gegevens om contact met je op te nemen over werken bij
-          Aqua+. Lees onze
-          <a id="privacyLink" href="/privacyverklaring.html" target="_blank" rel="noopener">privacyverklaring</a>.
-          Wil je ook in beeld blijven voor toekomstige vacatures? Geef daarvoor hieronder apart
-          toestemming.</p>
-
-        <!-- De teksten hieronder worden bij het laden vervangen door die van de server
-             (zie TOESTEMMING in server.js). Dat is dezelfde tekst die per inzending wordt
-             vastgelegd, zodat er geen licht kan zitten tussen wat de kandidaat las en wat
-             wij bewaren. Wat hier staat is de terugval als dat ophalen mislukt. -->
-        <label class="akkoord" for="akkoord">
-          <input type="checkbox" id="akkoord">
-          <span id="akkoordTekst">Aqua+ mag mijn gegevens gebruiken om contact met me op te nemen
-            over werken bij Aqua+. Op de ranglijst komen alleen mijn voornaam en mijn tijd te
-            staan.</span>
-        </label>
-
-        <!-- Los van het akkoord hierboven, en niet vooraf aangevinkt: de talentpool is
-             vrijwillig en mag geen voorwaarde zijn om mee te doen of vacatures te zien. -->
-        <label class="akkoord" for="talentpool">
-          <input type="checkbox" id="talentpool">
-          <span id="talentpoolTekst">Ja, Aqua+ mag mijn gegevens maximaal 12 maanden na het laatste
-            relevante contactmoment bewaren in het recruitmentsysteem Jobylon en mij benaderen voor
-            passende toekomstige vacatures. Ik kan mijn toestemming altijd intrekken via
-            werkenbij@aqua.nl.</span>
-        </label>
+        <!-- Geen vinkjes: wie op "Zie je score" klikt, geeft toestemming. De tekst hieronder
+             wordt bij het laden vervangen door die van de server (zie TOESTEMMING in
+             server.js), dezelfde zin die per inzending wordt vastgelegd. Wat hier staat
+             is de terugval als dat ophalen mislukt. -->
+        <p class="sub"><span id="akkoordTekst">Door op "Zie je score" te klikken geef ik Aqua+
+          toestemming om mijn gegevens te gebruiken om contact met me op te nemen over werken bij
+          Aqua+. Op de ranglijst komen alleen mijn voornaam en mijn tijd te staan.</span> Lees onze
+          <a id="privacyLink" href="/privacyverklaring.html" target="_blank" rel="noopener">privacyverklaring</a>.</p>
 
         <div class="callout fout verborgen" id="formFout"></div>
         <button class="knop knop-primair" id="verstuurKnop" type="submit" style="margin-top:var(--sp-4)">
-          Verstuur en bekijk de vacatures
+          Zie je score
         </button>
       </form>
-      <a class="knop knop-secundair" id="overslaanLink" href="/vacatures" target="_top" style="margin-top:var(--sp-4)">
-        Geen gegevens achterlaten, direct naar de vacatures
-      </a>
+      <!-- Bewust een tekstlink, geen tweede knop: wel zichtbaar, niet even zwaar. -->
+      <button class="linkknop" id="overslaanKnop">Liever niet, toon alleen mijn score</button>
     </div>
 
     <!-- 7. bedanken, ranglijst en aftellen -->

@@ -51,8 +51,10 @@ const PRIVACY_VERSIE = process.env.PRIVACY_VERSIE || '2026-10-07';
 const TOESTEMMING = {
   versie: PRIVACY_VERSIE,
   bron: 'inzendformulier challenge',
+  /* Geen vinkje meer: de klik op "Zie je score" is het akkoord. */
   akkoord:
-    'Aqua+ mag mijn gegevens gebruiken om contact met me op te nemen over werken bij Aqua+. ' +
+    'Door op "Zie je score" te klikken geef ik Aqua+ toestemming om mijn gegevens te ' +
+    'gebruiken om contact met me op te nemen over werken bij Aqua+. ' +
     'Op de ranglijst komen alleen mijn voornaam en mijn tijd te staan.',
   talentpool:
     'Ja, Aqua+ mag mijn gegevens maximaal 12 maanden na het laatste relevante contactmoment ' +
@@ -332,7 +334,8 @@ app.post('/api/sessie/:id/inzending', (req, res) => {
   const talentpool = b.talentpool === true;
   if (voornaam.length < 2) return fout(res, 400, 'Vul je voornaam in.');
   if (!telefoon) return fout(res, 400, 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12 34 56 78.');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
+  /* E-mail vragen we niet meer; een oudere client mag het nog sturen. */
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fout(res, 400, 'Vul een geldig e-mailadres in.');
   if (mbo !== true && mbo !== false) return fout(res, 400, 'Geef aan of je een mbo-diploma elektrotechniek hebt.');
 
   const eerder = q.inzendingVoorIp.get(ip_hash);
