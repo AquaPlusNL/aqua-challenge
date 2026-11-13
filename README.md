@@ -117,7 +117,7 @@ zet de klok niet terug. De ranglijst is dus niet te manipuleren met devtools.
 | `POST` | `/api/sessie` | Start een sessie. Geeft `sessieId`, `aantalLevels`, `alIngezonden`. |
 | `GET` | `/api/sessie/:id/level` | Huidig level zonder antwoord, start de klok. |
 | `POST` | `/api/sessie/:id/antwoord` | Body `{ keuze }`. Fout antwoord geeft `opnieuw: true`. |
-| `POST` | `/api/sessie/:id/inzending` | Body `{ voornaam, telefoon, email, mboDiploma }`. Van `voornaam` bewaart de server alleen het eerste woord. `telefoon` wordt genormaliseerd naar `+31...` (zie `src/telefoon.js`); ongeldig nummer geeft 400. |
+| `POST` | `/api/sessie/:id/inzending` | Body `{ voornaam, telefoon, mboDiploma, akkoord }`; `akkoord` moet `true` zijn. Van `voornaam` bewaart de server alleen het eerste woord. `telefoon` wordt genormaliseerd naar `+31...` (zie `src/telefoon.js`); ongeldig nummer geeft 400. |
 | `GET` | `/api/leaderboard` | Tien snelste tijden. |
 | `GET` | `/api/admin/statistiek` | Afhaakmomenten per level. Alleen localhost, plus header `x-admin-token`. |
 | `POST` | `/api/admin/reset` | Alleen localhost, plus admin-token. Body `{ wat: "inzendingen" \| "sessies" \| "alles" }`. |
