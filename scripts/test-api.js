@@ -171,7 +171,6 @@ try {
   const gegevens = {
     voornaam: 'Testpiet',
     telefoon: '0612345678',
-    email: 'test@example.nl',
     mboDiploma: true,
   };
   const [zonderCode, zonder] = await api(`/api/sessie/${s1.sessieId}/inzending`, {
